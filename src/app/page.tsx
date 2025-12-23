@@ -39,15 +39,49 @@ function HomeContent() {
   const expandTimeout = useRef<number | null>(null)
 
   // Track critical hero image loading via actual DOM elements
-  const heroBackgroundLoaded = useRef(false)
-  const heroCharacterLoaded = useRef(false)
-  const [criticalImagesReady, setCriticalImagesReady] = useState(false)
+  const heroBackgroundRef = useRef<HTMLImageElement>(null)
+  const heroCharacterRef = useRef<HTMLImageElement>(null)
+  const [heroBackgroundReady, setHeroBackgroundReady] = useState(false)
+  const [heroCharacterReady, setHeroCharacterReady] = useState(false)
 
-  const checkCriticalImagesReady = () => {
-    if (heroBackgroundLoaded.current && heroCharacterLoaded.current) {
-      setCriticalImagesReady(true)
+  // Poll until images are truly complete (handles cached images and race conditions)
+  useEffect(() => {
+    let rafId: number
+    let attempts = 0
+    const maxAttempts = 300 // 5 seconds at 60fps
+
+    const checkComplete = () => {
+      attempts++
+
+      const bgImg = heroBackgroundRef.current
+      const charImg = heroCharacterRef.current
+
+      // Check background image
+      if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
+        setHeroBackgroundReady(true)
+      }
+
+      // Check character image
+      if (charImg && charImg.complete && charImg.naturalWidth > 0) {
+        setHeroCharacterReady(true)
+      }
+
+      // Keep polling until both are ready or max attempts reached
+      const bgReady = bgImg?.complete && (bgImg?.naturalWidth ?? 0) > 0
+      const charReady = charImg?.complete && (charImg?.naturalWidth ?? 0) > 0
+
+      if ((!bgReady || !charReady) && attempts < maxAttempts) {
+        rafId = requestAnimationFrame(checkComplete)
+      }
     }
-  }
+
+    // Start checking
+    rafId = requestAnimationFrame(checkComplete)
+
+    return () => {
+      if (rafId) cancelAnimationFrame(rafId)
+    }
+  }, [])
 
   // Parallax character position variables
   const characterBaseX = 50
@@ -240,7 +274,8 @@ function HomeContent() {
 
   // Complete loading only when critical DOM images are fully loaded
   useEffect(() => {
-    if (criticalImagesReady && loadProgress >= 99) {
+    if (heroBackgroundReady && heroCharacterReady && loadProgress >= 99) {
+      // Both images loaded, complete the loader
       setLoadProgress(100)
       if (!expandTimeout.current) {
         expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
@@ -249,7 +284,7 @@ function HomeContent() {
         completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
       }
     }
-  }, [criticalImagesReady, loadProgress])
+  }, [heroBackgroundReady, heroCharacterReady, loadProgress])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -800,13 +835,11 @@ function HomeContent() {
         >
           {/* Hero background image */}
           <img
+            ref={heroBackgroundRef}
             src="/anime-dragon-character-illustration.jpg"
             alt=""
             decoding="sync"
-            onLoad={() => {
-              heroBackgroundLoaded.current = true
-              checkCriticalImagesReady()
-            }}
+            onLoad={() => setHeroBackgroundReady(true)}
             style={{
               position: 'absolute',
               inset: 0,
@@ -861,13 +894,11 @@ function HomeContent() {
             }}
           >
             <img
+              ref={heroCharacterRef}
               src="/upscalemedia-transformed-5.png"
               alt=""
               decoding="sync"
-              onLoad={() => {
-                heroCharacterLoaded.current = true
-                checkCriticalImagesReady()
-              }}
+              onLoad={() => setHeroCharacterReady(true)}
               style={{
                 position: 'absolute',
                 inset: 0,
