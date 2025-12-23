@@ -44,44 +44,48 @@ function HomeContent() {
   const [heroBackgroundReady, setHeroBackgroundReady] = useState(false)
   const [heroCharacterReady, setHeroCharacterReady] = useState(false)
 
-  // Poll until images are truly complete (handles cached images and race conditions)
-  useEffect(() => {
-    let rafId: number
-    let attempts = 0
-    const maxAttempts = 300 // 5 seconds at 60fps
+  // Handle hero background image load + decode
+  const handleBackgroundLoad = () => {
+    const img = heroBackgroundRef.current
+    if (!img) return
 
-    const checkComplete = () => {
-      attempts++
-
-      const bgImg = heroBackgroundRef.current
-      const charImg = heroCharacterRef.current
-
-      // Check background image
-      if (bgImg && bgImg.complete && bgImg.naturalWidth > 0) {
-        setHeroBackgroundReady(true)
-      }
-
-      // Check character image
-      if (charImg && charImg.complete && charImg.naturalWidth > 0) {
-        setHeroCharacterReady(true)
-      }
-
-      // Keep polling until both are ready or max attempts reached
-      const bgReady = bgImg?.complete && (bgImg?.naturalWidth ?? 0) > 0
-      const charReady = charImg?.complete && (charImg?.naturalWidth ?? 0) > 0
-
-      if ((!bgReady || !charReady) && attempts < maxAttempts) {
-        rafId = requestAnimationFrame(checkComplete)
-      }
+    // decode() ensures image is fully ready to render without jank
+    if (typeof img.decode === 'function') {
+      img.decode()
+        .then(() => {
+          setHeroBackgroundReady(true)
+          setLoadProgress(prev => Math.max(prev, 50))
+        })
+        .catch(() => {
+          setHeroBackgroundReady(true)
+          setLoadProgress(prev => Math.max(prev, 50))
+        })
+    } else {
+      setHeroBackgroundReady(true)
+      setLoadProgress(prev => Math.max(prev, 50))
     }
+  }
 
-    // Start checking
-    rafId = requestAnimationFrame(checkComplete)
+  // Handle hero character image load + decode
+  const handleCharacterLoad = () => {
+    const img = heroCharacterRef.current
+    if (!img) return
 
-    return () => {
-      if (rafId) cancelAnimationFrame(rafId)
+    if (typeof img.decode === 'function') {
+      img.decode()
+        .then(() => {
+          setHeroCharacterReady(true)
+          setLoadProgress(prev => Math.max(prev, 50))
+        })
+        .catch(() => {
+          setHeroCharacterReady(true)
+          setLoadProgress(prev => Math.max(prev, 50))
+        })
+    } else {
+      setHeroCharacterReady(true)
+      setLoadProgress(prev => Math.max(prev, 50))
     }
-  }, [])
+  }
 
   // Parallax character position variables
   const characterBaseX = 50
@@ -252,12 +256,8 @@ function HomeContent() {
       })
     })
 
-    // Preload non-critical assets into cache
-    Promise.all([...assets.map((src) => loadImage(src)), fontPromise, windowReady, paintSettled]).then(() => {
-      if (isCancelled) return
-      // Set progress to 99% - final 1% waits for critical DOM images
-      setLoadProgress(99)
-    })
+    // Preload non-critical assets into cache (background task, doesn't affect loader)
+    Promise.all([...assets.map((src) => loadImage(src)), fontPromise, windowReady, paintSettled])
 
     return () => {
       isCancelled = true
@@ -272,10 +272,10 @@ function HomeContent() {
     }
   }, [])
 
-  // Complete loading only when critical DOM images are fully loaded
+  // Complete loading ONLY when hero images are fully decoded - ignore preload progress
   useEffect(() => {
-    if (heroBackgroundReady && heroCharacterReady && loadProgress >= 99) {
-      // Both images loaded, complete the loader
+    if (heroBackgroundReady && heroCharacterReady) {
+      // Both hero images are fully loaded and decoded
       setLoadProgress(100)
       if (!expandTimeout.current) {
         expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
@@ -284,7 +284,7 @@ function HomeContent() {
         completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
       }
     }
-  }, [heroBackgroundReady, heroCharacterReady, loadProgress])
+  }, [heroBackgroundReady, heroCharacterReady])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -838,8 +838,7 @@ function HomeContent() {
             ref={heroBackgroundRef}
             src="/anime-dragon-character-illustration.jpg"
             alt=""
-            decoding="sync"
-            onLoad={() => setHeroBackgroundReady(true)}
+            onLoad={handleBackgroundLoad}
             style={{
               position: 'absolute',
               inset: 0,
@@ -897,8 +896,7 @@ function HomeContent() {
               ref={heroCharacterRef}
               src="/upscalemedia-transformed-5.png"
               alt=""
-              decoding="sync"
-              onLoad={() => setHeroCharacterReady(true)}
+              onLoad={handleCharacterLoad}
               style={{
                 position: 'absolute',
                 inset: 0,
