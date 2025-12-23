@@ -798,11 +798,10 @@ function HomeContent() {
             ...slideStyle(0)
           }}
         >
-          {/* Hidden img elements to track actual DOM image loading */}
+          {/* Hero background image */}
           <img
             src="/anime-dragon-character-illustration.jpg"
             alt=""
-            aria-hidden="true"
             decoding="sync"
             onLoad={() => {
               heroBackgroundLoaded.current = true
@@ -810,42 +809,12 @@ function HomeContent() {
             }}
             style={{
               position: 'absolute',
+              inset: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              opacity: 0,
-              pointerEvents: 'none',
-              zIndex: -1
-            }}
-          />
-          <img
-            src="/upscalemedia-transformed-5.png"
-            alt=""
-            aria-hidden="true"
-            decoding="sync"
-            onLoad={() => {
-              heroCharacterLoaded.current = true
-              checkCriticalImagesReady()
-            }}
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: 0,
-              pointerEvents: 'none',
-              zIndex: -1
-            }}
-          />
-          <div
-            className="absolute inset-0"
-            style={{
-              backgroundImage: 'url("/anime-dragon-character-illustration.jpg")',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-              backgroundRepeat: 'no-repeat',
-              width: '100%',
-              height: '100%'
+              objectPosition: 'center',
+              zIndex: 0
             }}
           />
 
@@ -891,19 +860,25 @@ function HomeContent() {
               zIndex: 2
             }}
           >
-            <div
-            className="absolute inset-0"
-            style={{
-                backgroundImage: 'url("/upscalemedia-transformed-5.png")',
-                backgroundSize: 'cover',
-                backgroundPosition: `${characterBaseX + (mousePosition.x - 50) * parallaxSensitivityX}% ${characterBaseY + (mousePosition.y - 50) * parallaxSensitivityY}%`,
-                backgroundRepeat: 'no-repeat',
+            <img
+              src="/upscalemedia-transformed-5.png"
+              alt=""
+              decoding="sync"
+              onLoad={() => {
+                heroCharacterLoaded.current = true
+                checkCriticalImagesReady()
+              }}
+              style={{
+                position: 'absolute',
+                inset: 0,
                 width: '100%',
                 height: '100%',
+                objectFit: 'cover',
+                objectPosition: `${characterBaseX + (mousePosition.x - 50) * parallaxSensitivityX}% ${characterBaseY + (mousePosition.y - 50) * parallaxSensitivityY}%`,
                 filter: 'drop-shadow(0 0 20px rgba(0, 0, 0, 0.3))'
-            }}
-          />
-        </div>
+              }}
+            />
+          </div>
         </div>
 
         {/* Content Layer 1 */}
