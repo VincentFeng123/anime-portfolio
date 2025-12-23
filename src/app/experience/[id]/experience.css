@@ -1,0 +1,544 @@
+.exp-page {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    #0d0a08 0%,
+    #1a1510 15%,
+    #2a2218 35%,
+    #3a2e20 50%,
+    #2a2218 65%,
+    #1a1510 85%,
+    #0d0a08 100%
+  );
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+
+.exp-page.fade-in {
+  opacity: 1;
+}
+
+/* Subtle noise texture overlay */
+.exp-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 25% 50%, rgba(191, 174, 124, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 30%, rgba(255, 220, 150, 0.04) 0%, transparent 40%),
+    radial-gradient(ellipse at 50% 80%, rgba(100, 80, 50, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============ RETURN BUTTON ============ */
+.exp-return-btn {
+  position: absolute;
+  top: 30px;
+  left: 40px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: none;
+  color: #c8b89a;
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 10px 16px;
+  transition: color 0.3s ease;
+  z-index: 100;
+}
+
+.exp-return-btn:hover {
+  color: #f0e6d0;
+}
+
+.exp-return-arrow {
+  font-size: 22px;
+  line-height: 1;
+}
+
+/* ============ NAVIGATION ARROWS ============ */
+.exp-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  z-index: 100;
+  padding: 20px;
+  transition: all 0.3s ease;
+}
+
+.exp-arrow-left {
+  left: 30px;
+}
+
+.exp-arrow-right {
+  right: 30px;
+}
+
+.exp-arrow-icon {
+  font-size: 36px;
+  color: rgba(191, 174, 124, 0.5);
+  transition: color 0.3s ease;
+}
+
+.exp-arrow:hover .exp-arrow-icon {
+  color: rgba(191, 174, 124, 0.9);
+}
+
+.exp-arrow-line {
+  width: 40px;
+  height: 1px;
+  background: rgba(191, 174, 124, 0.3);
+  transition: background 0.3s ease;
+}
+
+.exp-arrow:hover .exp-arrow-line {
+  background: rgba(191, 174, 124, 0.6);
+}
+
+.exp-arrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(191, 174, 124, 0.4);
+  transition: background 0.3s ease;
+}
+
+.exp-arrow:hover .exp-arrow-dot {
+  background: rgba(191, 174, 124, 0.8);
+}
+
+/* ============ MAIN CONTENT ============ */
+.exp-content {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 60px 140px;
+  z-index: 10;
+}
+
+/* Slide out to left */
+.exp-content.slide-left {
+  animation: slideOutToLeft 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Slide out to right */
+.exp-content.slide-right {
+  animation: slideOutToRight 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Enter from right (after going next) */
+.exp-content.slide-entering-left {
+  animation: slideInFromRight 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* Enter from left (after going prev) */
+.exp-content.slide-entering-right {
+  animation: slideInFromLeft 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes slideOutToLeft {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+}
+
+@keyframes slideOutToRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    transform: translateX(-100px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ============ EMBLEM (LEFT SIDE) ============ */
+.exp-emblem-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 40px;
+}
+
+.exp-emblem {
+  position: relative;
+  width: 480px;
+  height: 480px;
+}
+
+.exp-emblem img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 380px;
+  height: 380px;
+  object-fit: cover;
+  clip-path: polygon(
+    50% 2%,
+    78% 8%,
+    95% 30%,
+    98% 55%,
+    88% 82%,
+    60% 98%,
+    40% 98%,
+    12% 82%,
+    2% 55%,
+    5% 30%,
+    22% 8%
+  );
+  filter: sepia(0.15) contrast(1.05) brightness(0.95);
+}
+
+.exp-emblem-outer-frame {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(191, 174, 124, 0.2);
+  clip-path: polygon(
+    50% 0%,
+    80% 6%,
+    97% 28%,
+    100% 55%,
+    90% 85%,
+    62% 100%,
+    38% 100%,
+    10% 85%,
+    0% 55%,
+    3% 28%,
+    20% 6%
+  );
+}
+
+.exp-emblem-outer-frame::before {
+  content: "";
+  position: absolute;
+  inset: -20px;
+  border: 1px solid rgba(191, 174, 124, 0.1);
+  clip-path: polygon(
+    50% 0%,
+    80% 6%,
+    97% 28%,
+    100% 55%,
+    90% 85%,
+    62% 100%,
+    38% 100%,
+    10% 85%,
+    0% 55%,
+    3% 28%,
+    20% 6%
+  );
+}
+
+.exp-emblem-inner-frame {
+  position: absolute;
+  inset: 40px;
+  border: 2px solid rgba(191, 174, 124, 0.25);
+  clip-path: polygon(
+    50% 2%,
+    78% 8%,
+    95% 30%,
+    98% 55%,
+    88% 82%,
+    60% 98%,
+    40% 98%,
+    12% 82%,
+    2% 55%,
+    5% 30%,
+    22% 8%
+  );
+}
+
+.exp-emblem-inner-frame::before {
+  content: "";
+  position: absolute;
+  inset: -15px;
+  border: 1px solid rgba(191, 174, 124, 0.15);
+  clip-path: polygon(
+    50% 2%,
+    78% 8%,
+    95% 30%,
+    98% 55%,
+    88% 82%,
+    60% 98%,
+    40% 98%,
+    12% 82%,
+    2% 55%,
+    5% 30%,
+    22% 8%
+  );
+}
+
+.exp-emblem-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at 35% 35%,
+    rgba(255, 220, 150, 0.12) 0%,
+    transparent 50%
+  );
+  clip-path: polygon(
+    50% 2%,
+    78% 8%,
+    95% 30%,
+    98% 55%,
+    88% 82%,
+    60% 98%,
+    40% 98%,
+    12% 82%,
+    2% 55%,
+    5% 30%,
+    22% 8%
+  );
+  pointer-events: none;
+}
+
+/* Decorative corner accents on emblem */
+.exp-emblem::before,
+.exp-emblem::after {
+  content: "";
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 1px solid rgba(191, 174, 124, 0.2);
+}
+
+.exp-emblem::before {
+  top: -10px;
+  left: -10px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.exp-emblem::after {
+  bottom: -10px;
+  right: -10px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ============ TEXT (RIGHT SIDE) ============ */
+.exp-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 40px;
+  max-width: 600px;
+}
+
+.exp-numeral-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.exp-numeral {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 80px;
+  font-weight: 300;
+  color: rgba(191, 174, 124, 0.85);
+  line-height: 1;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.exp-numeral-line {
+  display: block;
+  width: 60px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(191, 174, 124, 0.4), transparent);
+}
+
+.exp-numeral-line.left {
+  transform: rotate(-20deg);
+  transform-origin: right center;
+}
+
+.exp-numeral-line.right {
+  transform: rotate(20deg);
+  transform-origin: left center;
+}
+
+.exp-title {
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 64px;
+  font-weight: 400;
+  color: #f5f0e6;
+  margin: 0 0 20px 0;
+  letter-spacing: 3px;
+  text-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+}
+
+.exp-subtitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  position: relative;
+}
+
+.exp-subtitle span {
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(191, 174, 124, 0.6);
+}
+
+.exp-subtitle::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(191, 174, 124, 0.3), transparent);
+  margin-left: 20px;
+}
+
+.exp-description {
+  color: rgba(200, 190, 170, 0.85);
+  font-size: 15px;
+  line-height: 1.9;
+  font-family: "Georgia", "Times New Roman", serif;
+}
+
+.exp-description p {
+  margin: 0 0 18px 0;
+}
+
+.exp-description p:last-child {
+  margin-bottom: 0;
+}
+
+/* ============ BOTTOM DECORATIONS ============ */
+.exp-bottom-line {
+  position: absolute;
+  bottom: 50px;
+  right: 140px;
+  width: 180px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(191, 174, 124, 0.35));
+  z-index: 10;
+}
+
+.exp-corner-decor {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border: 1px solid rgba(191, 174, 124, 0.08);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.exp-corner-decor.top-left {
+  top: 90px;
+  left: 40px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.exp-corner-decor.bottom-right {
+  bottom: 40px;
+  right: 40px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 1200px) {
+  .exp-content {
+    padding: 40px 100px;
+  }
+
+  .exp-emblem {
+    width: 400px;
+    height: 400px;
+  }
+
+  .exp-emblem img {
+    width: 320px;
+    height: 320px;
+  }
+
+  .exp-title {
+    font-size: 48px;
+  }
+
+  .exp-numeral {
+    font-size: 60px;
+  }
+}
+
+@media (max-width: 900px) {
+  .exp-content {
+    grid-template-columns: 1fr;
+    padding: 40px 60px;
+    overflow-y: auto;
+  }
+
+  .exp-emblem-container {
+    padding: 0;
+    margin-bottom: 40px;
+  }
+
+  .exp-emblem {
+    width: 300px;
+    height: 300px;
+  }
+
+  .exp-emblem img {
+    width: 240px;
+    height: 240px;
+  }
+
+  .exp-text {
+    padding-left: 0;
+  }
+
+  .exp-nav-items {
+    display: none;
+  }
+
+  .exp-nav-right {
+    display: none;
+  }
+}
