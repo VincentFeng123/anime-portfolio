@@ -121,7 +121,15 @@ function HomeContent() {
         '/anime-style-mythical-dragon-creature.jpg',
         '/anime-style-mythical-dragon-creature.png',
         '/4060492.jpg',
-        '/landscape_background_with_an_abstract_topography_map_design_0305.jpg'
+        '/landscape_background_with_an_abstract_topography_map_design_0305.jpg',
+        '/vf-mark.png',
+        '/vf-stripe.png',
+        '/window.svg',
+        '/globe.svg',
+        '/file.svg',
+        '/vercel.svg',
+        '/loading-screen.png',
+        '/next.svg'
       ])
     )
 
@@ -147,11 +155,27 @@ function HomeContent() {
           updateProgress()
           resolve()
         }
-        img.onload = finish
+        img.onload = () => {
+          if (typeof img.decode === 'function') {
+            img
+              .decode()
+              .catch(() => {})
+              .finally(finish)
+          } else {
+            finish()
+          }
+        }
         img.onerror = finish
         img.src = src
         if (img.complete) {
-          finish()
+          if (typeof img.decode === 'function') {
+            img
+              .decode()
+              .catch(() => {})
+              .finally(finish)
+          } else {
+            finish()
+          }
         }
       })
 
