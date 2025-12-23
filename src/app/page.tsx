@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import type { MouseEvent as ReactMouseEvent, CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -549,7 +549,8 @@ export default function Home() {
   }, [])
 
   return (
-    <>
+    <Suspense fallback={null}>
+      <>
       <AnimatePresence>
         {isLoading && (
           <motion.div
@@ -1098,6 +1099,7 @@ export default function Home() {
         </div>
 
       </div>
-    </>
+      </>
+    </Suspense>
   )
 }
