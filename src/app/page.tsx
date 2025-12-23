@@ -2,11 +2,11 @@
 
 import { useState, useEffect, useRef, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import type { MouseEvent as ReactMouseEvent, CSSProperties } from 'react'
+import type { MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ParticleScene from './components/ParticleScene'
 
-export default function Home() {
+function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -549,7 +549,6 @@ export default function Home() {
   }, [])
 
   return (
-    <Suspense fallback={null}>
       <>
       <AnimatePresence>
         {isLoading && (
@@ -1100,6 +1099,13 @@ export default function Home() {
 
       </div>
       </>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={null}>
+      <HomeContent />
     </Suspense>
   )
 }
