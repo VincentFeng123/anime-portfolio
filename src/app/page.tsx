@@ -208,15 +208,82 @@ function HomeContent() {
       })
     })
 
+    // Critical hero images that must be fully painted before loader dismisses
+    const criticalImages = [
+      '/anime-dragon-character-illustration.jpg',
+      '/upscalemedia-transformed-5.png'
+    ]
+
+    // Verify DOM elements are actually painted (not just cached)
+    const verifyDOMPainted = () => new Promise<void>((resolve) => {
+      // Wait for hero element to exist and have the background images composited
+      const waitForHero = () => {
+        const heroEl = document.querySelector('.hero-slide')
+        if (!heroEl) {
+          requestAnimationFrame(waitForHero)
+          return
+        }
+
+        // Create test images that pull from cache and verify they're fully decoded
+        const verifyPromises = criticalImages.map((src) => {
+          return new Promise<void>((res) => {
+            const img = new Image()
+            img.src = src
+            // If already complete (from cache), still decode to ensure GPU ready
+            if (img.complete && img.naturalWidth > 0) {
+              if (typeof img.decode === 'function') {
+                img.decode().then(() => res()).catch(() => res())
+              } else {
+                res()
+              }
+            } else {
+              img.onload = () => {
+                if (typeof img.decode === 'function') {
+                  img.decode().then(() => res()).catch(() => res())
+                } else {
+                  res()
+                }
+              }
+              img.onerror = () => res()
+            }
+          })
+        })
+
+        Promise.all(verifyPromises).then(() => {
+          // Wait additional frames for GPU compositing of large images
+          let frames = 0
+          const waitForComposite = () => {
+            frames++
+            if (frames < 15) {
+              // ~250ms at 60fps for GPU to composite large images
+              requestAnimationFrame(waitForComposite)
+            } else {
+              // Force layout read to ensure paint is complete
+              const rect = heroEl.getBoundingClientRect()
+              void rect.width // Force read
+              resolve()
+            }
+          }
+          requestAnimationFrame(waitForComposite)
+        })
+      }
+
+      requestAnimationFrame(waitForHero)
+    })
+
     Promise.all([...assets.map((src) => loadImage(src)), fontPromise, windowReady, paintSettled]).then(() => {
       if (isCancelled) return
-      setLoadProgress(100)
-      if (!expandTimeout.current) {
-        expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
-      }
-      if (!completionTimeout.current) {
-        completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
-      }
+      // After cache preload, verify DOM is actually painted
+      verifyDOMPainted().then(() => {
+        if (isCancelled) return
+        setLoadProgress(100)
+        if (!expandTimeout.current) {
+          expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
+        }
+        if (!completionTimeout.current) {
+          completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
+        }
+      })
     })
 
     return () => {
