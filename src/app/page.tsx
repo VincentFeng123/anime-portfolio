@@ -110,34 +110,75 @@ function HomeContent() {
   }, [router, totalSections])
 
   useEffect(() => {
-    const duration = 1400
-    const start = performance.now()
-    let frame: number
+    if (typeof window === 'undefined') return
 
-    const tick = (now: number) => {
-      const elapsed = now - start
-      const pct = Math.min(100, Math.round((elapsed / duration) * 100))
-      setLoadProgress(pct)
-      if (pct >= 100) {
-        if (!expandTimeout.current) {
-          expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
-        }
-        if (!completionTimeout.current) {
-          completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
-        }
-        return
-      }
-      frame = requestAnimationFrame(tick)
+    const assets = Array.from(
+      new Set([
+        '/anime-dragon-character-illustration.jpg',
+        '/upscalemedia-transformed-5.png',
+        '/about-reference.png',
+        '/peakpx.jpg',
+        '/anime-style-mythical-dragon-creature.jpg',
+        '/anime-style-mythical-dragon-creature.png',
+        '/4060492.jpg',
+        '/landscape_background_with_an_abstract_topography_map_design_0305.jpg'
+      ])
+    )
+
+    let isCancelled = false
+    let completed = 0
+    const supportsFonts = 'fonts' in document
+    const totalSteps = assets.length + (supportsFonts ? 1 : 0)
+
+    const updateProgress = () => {
+      if (isCancelled) return
+      completed += 1
+      const pct = totalSteps > 0 ? Math.min(100, Math.round((completed / totalSteps) * 100)) : 100
+      setLoadProgress((prev) => Math.max(prev, pct))
     }
 
-    frame = requestAnimationFrame(tick)
+    const loadImage = (src: string) =>
+      new Promise<void>((resolve) => {
+        const img = new Image()
+        let settled = false
+        const finish = () => {
+          if (settled) return
+          settled = true
+          updateProgress()
+          resolve()
+        }
+        img.onload = finish
+        img.onerror = finish
+        img.src = src
+        if (img.complete) {
+          finish()
+        }
+      })
+
+    const fontPromise = supportsFonts
+      ? (document as Document & { fonts: FontFaceSet }).fonts.ready.then(updateProgress)
+      : Promise.resolve()
+
+    Promise.all([...assets.map((src) => loadImage(src)), fontPromise]).then(() => {
+      if (isCancelled) return
+      setLoadProgress(100)
+      if (!expandTimeout.current) {
+        expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
+      }
+      if (!completionTimeout.current) {
+        completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
+      }
+    })
+
     return () => {
-      cancelAnimationFrame(frame)
+      isCancelled = true
       if (completionTimeout.current) {
         clearTimeout(completionTimeout.current)
+        completionTimeout.current = null
       }
       if (expandTimeout.current) {
         clearTimeout(expandTimeout.current)
+        expandTimeout.current = null
       }
     }
   }, [])
