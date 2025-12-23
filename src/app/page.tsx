@@ -136,7 +136,7 @@ function HomeContent() {
     let isCancelled = false
     let completed = 0
     const supportsFonts = 'fonts' in document
-    const totalSteps = assets.length + (supportsFonts ? 1 : 0)
+    const totalSteps = assets.length + (supportsFonts ? 1 : 0) + 2 // include window load + paint settle
 
     const updateProgress = () => {
       if (isCancelled) return
@@ -183,7 +183,32 @@ function HomeContent() {
       ? (document as Document & { fonts: FontFaceSet }).fonts.ready.then(updateProgress)
       : Promise.resolve()
 
-    Promise.all([...assets.map((src) => loadImage(src)), fontPromise]).then(() => {
+    const windowReady = new Promise<void>((resolve) => {
+      if (document.readyState === 'complete') {
+        updateProgress()
+        resolve()
+      } else {
+        window.addEventListener(
+          'load',
+          () => {
+            updateProgress()
+            resolve()
+          },
+          { once: true }
+        )
+      }
+    })
+
+    const paintSettled = new Promise<void>((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          updateProgress()
+          resolve()
+        })
+      })
+    })
+
+    Promise.all([...assets.map((src) => loadImage(src)), fontPromise, windowReady, paintSettled]).then(() => {
       if (isCancelled) return
       setLoadProgress(100)
       if (!expandTimeout.current) {
