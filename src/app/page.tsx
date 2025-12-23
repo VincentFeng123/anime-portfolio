@@ -38,6 +38,17 @@ function HomeContent() {
   const completionTimeout = useRef<number | null>(null)
   const expandTimeout = useRef<number | null>(null)
 
+  // Track critical hero image loading via actual DOM elements
+  const heroBackgroundLoaded = useRef(false)
+  const heroCharacterLoaded = useRef(false)
+  const [criticalImagesReady, setCriticalImagesReady] = useState(false)
+
+  const checkCriticalImagesReady = () => {
+    if (heroBackgroundLoaded.current && heroCharacterLoaded.current) {
+      setCriticalImagesReady(true)
+    }
+  }
+
   // Parallax character position variables
   const characterBaseX = 50
   const characterBaseY = 50
@@ -112,10 +123,9 @@ function HomeContent() {
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    // Critical hero images are loaded via DOM <img> elements, not here
     const assets = Array.from(
       new Set([
-        '/anime-dragon-character-illustration.jpg',
-        '/upscalemedia-transformed-5.png',
         '/about-reference.png',
         '/peakpx.jpg',
         '/anime-style-mythical-dragon-creature.jpg',
@@ -208,82 +218,11 @@ function HomeContent() {
       })
     })
 
-    // Critical hero images that must be fully painted before loader dismisses
-    const criticalImages = [
-      '/anime-dragon-character-illustration.jpg',
-      '/upscalemedia-transformed-5.png'
-    ]
-
-    // Verify DOM elements are actually painted (not just cached)
-    const verifyDOMPainted = () => new Promise<void>((resolve) => {
-      // Wait for hero element to exist and have the background images composited
-      const waitForHero = () => {
-        const heroEl = document.querySelector('.hero-slide')
-        if (!heroEl) {
-          requestAnimationFrame(waitForHero)
-          return
-        }
-
-        // Create test images that pull from cache and verify they're fully decoded
-        const verifyPromises = criticalImages.map((src) => {
-          return new Promise<void>((res) => {
-            const img = new Image()
-            img.src = src
-            // If already complete (from cache), still decode to ensure GPU ready
-            if (img.complete && img.naturalWidth > 0) {
-              if (typeof img.decode === 'function') {
-                img.decode().then(() => res()).catch(() => res())
-              } else {
-                res()
-              }
-            } else {
-              img.onload = () => {
-                if (typeof img.decode === 'function') {
-                  img.decode().then(() => res()).catch(() => res())
-                } else {
-                  res()
-                }
-              }
-              img.onerror = () => res()
-            }
-          })
-        })
-
-        Promise.all(verifyPromises).then(() => {
-          // Wait additional frames for GPU compositing of large images
-          let frames = 0
-          const waitForComposite = () => {
-            frames++
-            if (frames < 15) {
-              // ~250ms at 60fps for GPU to composite large images
-              requestAnimationFrame(waitForComposite)
-            } else {
-              // Force layout read to ensure paint is complete
-              const rect = heroEl.getBoundingClientRect()
-              void rect.width // Force read
-              resolve()
-            }
-          }
-          requestAnimationFrame(waitForComposite)
-        })
-      }
-
-      requestAnimationFrame(waitForHero)
-    })
-
+    // Preload non-critical assets into cache
     Promise.all([...assets.map((src) => loadImage(src)), fontPromise, windowReady, paintSettled]).then(() => {
       if (isCancelled) return
-      // After cache preload, verify DOM is actually painted
-      verifyDOMPainted().then(() => {
-        if (isCancelled) return
-        setLoadProgress(100)
-        if (!expandTimeout.current) {
-          expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
-        }
-        if (!completionTimeout.current) {
-          completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
-        }
-      })
+      // Set progress to 99% - final 1% waits for critical DOM images
+      setLoadProgress(99)
     })
 
     return () => {
@@ -298,6 +237,19 @@ function HomeContent() {
       }
     }
   }, [])
+
+  // Complete loading only when critical DOM images are fully loaded
+  useEffect(() => {
+    if (criticalImagesReady && loadProgress >= 99) {
+      setLoadProgress(100)
+      if (!expandTimeout.current) {
+        expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
+      }
+      if (!completionTimeout.current) {
+        completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
+      }
+    }
+  }, [criticalImagesReady, loadProgress])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -846,6 +798,45 @@ function HomeContent() {
             ...slideStyle(0)
           }}
         >
+          {/* Hidden img elements to track actual DOM image loading */}
+          <img
+            src="/anime-dragon-character-illustration.jpg"
+            alt=""
+            aria-hidden="true"
+            decoding="sync"
+            onLoad={() => {
+              heroBackgroundLoaded.current = true
+              checkCriticalImagesReady()
+            }}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: 0,
+              pointerEvents: 'none',
+              zIndex: -1
+            }}
+          />
+          <img
+            src="/upscalemedia-transformed-5.png"
+            alt=""
+            aria-hidden="true"
+            decoding="sync"
+            onLoad={() => {
+              heroCharacterLoaded.current = true
+              checkCriticalImagesReady()
+            }}
+            style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              opacity: 0,
+              pointerEvents: 'none',
+              zIndex: -1
+            }}
+          />
           <div
             className="absolute inset-0"
             style={{
