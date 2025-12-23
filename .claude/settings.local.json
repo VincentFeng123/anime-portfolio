@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(npm run dev:*)",
-      "Bash(lsof:*)"
+      "Bash(lsof:*)",
+      "Bash(tree:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npm update:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []
