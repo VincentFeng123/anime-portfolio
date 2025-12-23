@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef, Suspense } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ParticleScene from './components/ParticleScene'
@@ -12,7 +12,6 @@ export const fetchCache = 'force-no-store'
 
 function HomeContent() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const [navColor, setNavColor] = useState('#fff')
   const [isLoading, setIsLoading] = useState(true)
@@ -99,19 +98,20 @@ function HomeContent() {
     }, 1100)
   }
 
-  // Handle section query parameter (for returning from experience page)
+  // Handle section query parameter (client-only)
   useEffect(() => {
-    const section = searchParams.get('section')
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const section = params.get('section')
     if (section) {
       const sectionNum = parseInt(section, 10)
       if (!isNaN(sectionNum) && sectionNum >= 0 && sectionNum < totalSections) {
         currentSectionRef.current = sectionNum
         setCurrentSection(sectionNum)
-        // Clean up the URL
         router.replace('/', { scroll: false })
       }
     }
-  }, [searchParams, router])
+  }, [router, totalSections])
 
   useEffect(() => {
     const duration = 1400
