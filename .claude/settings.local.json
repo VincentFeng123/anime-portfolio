@@ -6,7 +6,9 @@
       "Bash(tree:*)",
       "Bash(npx tsc:*)",
       "Bash(npm update:*)",
-      "Bash(npm install:*)"
+      "Bash(npm install:*)",
+      "Bash(ls:*)",
+      "Bash(sips --help:*)"
     ],
     "deny": [],
     "ask": []

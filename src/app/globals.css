@@ -1177,13 +1177,11 @@ html {
   position: fixed;
   inset: 0;
   z-index: 2000000;
-  background: #ffffff;
+  background-color: #0a0a0a;
   background-image: url('/4060492.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-color: rgba(255, 255, 255, 0);
-  background-blend-mode: lighten;
   display: flex;
   align-items: center;
   justify-content: flex-start;

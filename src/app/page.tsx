@@ -119,7 +119,7 @@ function HomeContent() {
     let isCancelled = false
     const heroImages = [
       '/anime-dragon-character-illustration.jpg',
-      '/upscalemedia-transformed-5.png'
+      '/upscalemedia-compressed.jpg'
     ]
     let loadedCount = 0
     let imagesFullyLoaded = false
@@ -830,7 +830,7 @@ function HomeContent() {
             }}
           >
             <img
-              src="/upscalemedia-transformed-5.png"
+              src="/upscalemedia-compressed.jpg"
               alt=""
               style={{
                 position: 'absolute',
