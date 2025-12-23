@@ -6,6 +6,8 @@ import type { MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ParticleScene from './components/ParticleScene'
 
+export const dynamic = 'force-dynamic'
+
 function HomeContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -876,7 +878,7 @@ function HomeContent() {
                               padding: '6px 0',
                               cursor: 'pointer',
                               color: '#2b2b2b',
-                              fontSize: '22px',
+                              fontSize: '16px',
                               fontFamily: '"Georgia", "Times New Roman", serif',
                               textAlign: 'left',
                               width: '100%'
