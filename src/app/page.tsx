@@ -38,54 +38,8 @@ function HomeContent() {
   const completionTimeout = useRef<number | null>(null)
   const expandTimeout = useRef<number | null>(null)
 
-  // Track critical hero image loading via actual DOM elements
-  const heroBackgroundRef = useRef<HTMLImageElement>(null)
-  const heroCharacterRef = useRef<HTMLImageElement>(null)
-  const [heroBackgroundReady, setHeroBackgroundReady] = useState(false)
-  const [heroCharacterReady, setHeroCharacterReady] = useState(false)
-
-  // Handle hero background image load + decode
-  const handleBackgroundLoad = () => {
-    const img = heroBackgroundRef.current
-    if (!img) return
-
-    // decode() ensures image is fully ready to render without jank
-    if (typeof img.decode === 'function') {
-      img.decode()
-        .then(() => {
-          setHeroBackgroundReady(true)
-          setLoadProgress(prev => Math.max(prev, 50))
-        })
-        .catch(() => {
-          setHeroBackgroundReady(true)
-          setLoadProgress(prev => Math.max(prev, 50))
-        })
-    } else {
-      setHeroBackgroundReady(true)
-      setLoadProgress(prev => Math.max(prev, 50))
-    }
-  }
-
-  // Handle hero character image load + decode
-  const handleCharacterLoad = () => {
-    const img = heroCharacterRef.current
-    if (!img) return
-
-    if (typeof img.decode === 'function') {
-      img.decode()
-        .then(() => {
-          setHeroCharacterReady(true)
-          setLoadProgress(prev => Math.max(prev, 50))
-        })
-        .catch(() => {
-          setHeroCharacterReady(true)
-          setLoadProgress(prev => Math.max(prev, 50))
-        })
-    } else {
-      setHeroCharacterReady(true)
-      setLoadProgress(prev => Math.max(prev, 50))
-    }
-  }
+  // Track hero image loading
+  const [heroImagesReady, setHeroImagesReady] = useState(false)
 
   // Parallax character position variables
   const characterBaseX = 50
@@ -158,109 +112,72 @@ function HomeContent() {
     }
   }, [router, totalSections])
 
+  // Simple, reliable loading - just wait for the two hero images
   useEffect(() => {
     if (typeof window === 'undefined') return
 
-    // Critical hero images are loaded via DOM <img> elements, not here
-    const assets = Array.from(
-      new Set([
-        '/about-reference.png',
-        '/peakpx.jpg',
-        '/anime-style-mythical-dragon-creature.jpg',
-        '/anime-style-mythical-dragon-creature.png',
-        '/4060492.jpg',
-        '/landscape_background_with_an_abstract_topography_map_design_0305.jpg',
-        '/vf-mark.png',
-        '/vf-stripe.png',
-        '/window.svg',
-        '/globe.svg',
-        '/file.svg',
-        '/vercel.svg',
-        '/loading-screen.png',
-        '/next.svg'
-      ])
-    )
-
     let isCancelled = false
-    let completed = 0
-    const supportsFonts = 'fonts' in document
-    const totalSteps = assets.length + (supportsFonts ? 1 : 0) + 2 // include window load + paint settle
+    const heroImages = [
+      '/anime-dragon-character-illustration.jpg',
+      '/upscalemedia-transformed-5.png'
+    ]
+    let loadedCount = 0
+    let imagesFullyLoaded = false
+    const MIN_LOAD_TIME = 2000 // Minimum 2 seconds for loader to show
 
-    const updateProgress = () => {
+    // Animate progress gradually - caps at 90% until images are actually loaded
+    let currentProgress = 0
+    const progressInterval = setInterval(() => {
       if (isCancelled) return
-      completed += 1
-      const pct = totalSteps > 0 ? Math.min(100, Math.round((completed / totalSteps) * 100)) : 100
-      setLoadProgress((prev) => Math.max(prev, pct))
+
+      if (imagesFullyLoaded) {
+        // Images loaded - smoothly finish to 100%
+        currentProgress = Math.min(100, currentProgress + 3)
+        setLoadProgress(currentProgress)
+        if (currentProgress >= 100) {
+          clearInterval(progressInterval)
+        }
+      } else {
+        // Still loading - slowly progress up to 90%
+        const target = Math.min(90, loadedCount * 40 + 10)
+        if (currentProgress < target) {
+          currentProgress = Math.min(target, currentProgress + 1)
+          setLoadProgress(currentProgress)
+        }
+      }
+    }, 30)
+
+    const onImageReady = () => {
+      if (isCancelled) return
+      loadedCount++
+
+      if (loadedCount === heroImages.length) {
+        // Both images loaded - wait for minimum time then complete
+        imagesFullyLoaded = true
+        setTimeout(() => {
+          if (!isCancelled) {
+            setHeroImagesReady(true)
+          }
+        }, MIN_LOAD_TIME)
+      }
     }
 
-    const loadImage = (src: string) =>
-      new Promise<void>((resolve) => {
-        const img = new Image()
-        let settled = false
-        const finish = () => {
-          if (settled) return
-          settled = true
-          updateProgress()
-          resolve()
+    heroImages.forEach((src) => {
+      const img = new Image()
+      img.onload = () => {
+        if (typeof img.decode === 'function') {
+          img.decode().then(onImageReady).catch(onImageReady)
+        } else {
+          onImageReady()
         }
-        img.onload = () => {
-          if (typeof img.decode === 'function') {
-            img
-              .decode()
-              .catch(() => {})
-              .finally(finish)
-          } else {
-            finish()
-          }
-        }
-        img.onerror = finish
-        img.src = src
-        if (img.complete) {
-          if (typeof img.decode === 'function') {
-            img
-              .decode()
-              .catch(() => {})
-              .finally(finish)
-          } else {
-            finish()
-          }
-        }
-      })
-
-    const fontPromise = supportsFonts
-      ? (document as Document & { fonts: FontFaceSet }).fonts.ready.then(updateProgress)
-      : Promise.resolve()
-
-    const windowReady = new Promise<void>((resolve) => {
-      if (document.readyState === 'complete') {
-        updateProgress()
-        resolve()
-      } else {
-        window.addEventListener(
-          'load',
-          () => {
-            updateProgress()
-            resolve()
-          },
-          { once: true }
-        )
       }
+      img.onerror = onImageReady
+      img.src = src
     })
-
-    const paintSettled = new Promise<void>((resolve) => {
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          updateProgress()
-          resolve()
-        })
-      })
-    })
-
-    // Preload non-critical assets into cache (background task, doesn't affect loader)
-    Promise.all([...assets.map((src) => loadImage(src)), fontPromise, windowReady, paintSettled])
 
     return () => {
       isCancelled = true
+      clearInterval(progressInterval)
       if (completionTimeout.current) {
         clearTimeout(completionTimeout.current)
         completionTimeout.current = null
@@ -272,11 +189,9 @@ function HomeContent() {
     }
   }, [])
 
-  // Complete loading ONLY when hero images are fully decoded - ignore preload progress
+  // Complete loading when hero images are ready
   useEffect(() => {
-    if (heroBackgroundReady && heroCharacterReady) {
-      // Both hero images are fully loaded and decoded
-      setLoadProgress(100)
+    if (heroImagesReady) {
       if (!expandTimeout.current) {
         expandTimeout.current = window.setTimeout(() => setIsCompleting(true), 200)
       }
@@ -284,7 +199,7 @@ function HomeContent() {
         completionTimeout.current = window.setTimeout(() => setIsLoading(false), 850)
       }
     }
-  }, [heroBackgroundReady, heroCharacterReady])
+  }, [heroImagesReady])
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -723,7 +638,7 @@ function HomeContent() {
                 }}
               >
                 <div>Vincent</div>
-                <div>Feng</div>
+                <div style={{ marginLeft: '0.5em' }}>Feng</div>
               </div>
 
               <div className="loader-progress-assembly" aria-label="Loading progress">
@@ -859,10 +774,8 @@ function HomeContent() {
         >
           {/* Hero background image */}
           <img
-            ref={heroBackgroundRef}
             src="/anime-dragon-character-illustration.jpg"
             alt=""
-            onLoad={handleBackgroundLoad}
             style={{
               position: 'absolute',
               inset: 0,
@@ -917,10 +830,8 @@ function HomeContent() {
             }}
           >
             <img
-              ref={heroCharacterRef}
               src="/upscalemedia-transformed-5.png"
               alt=""
-              onLoad={handleCharacterLoad}
               style={{
                 position: 'absolute',
                 inset: 0,
