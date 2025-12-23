@@ -703,6 +703,29 @@ function HomeContent() {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, delay: 0.2, ease: 'easeOut' }}
           >
+              {/* Big name text - will be covered by expanding track */}
+              <div
+                style={{
+                  position: 'absolute',
+                  left: '80px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: 'clamp(4rem, 12vw, 10rem)',
+                  fontWeight: 900,
+                  fontFamily: 'system-ui, -apple-system, sans-serif',
+                  color: 'rgba(255, 255, 255, 0.9)',
+                  lineHeight: 0.9,
+                  letterSpacing: '-0.02em',
+                  textTransform: 'uppercase',
+                  zIndex: 1,
+                  pointerEvents: 'none',
+                  userSelect: 'none'
+                }}
+              >
+                <div>Vincent</div>
+                <div>Feng</div>
+              </div>
+
               <div className="loader-progress-assembly" aria-label="Loading progress">
               <motion.div
                 className="loader-progress-track"
@@ -710,6 +733,7 @@ function HomeContent() {
                 initial={{ width: 10 }}
                 animate={{ width: isCompleting ? '100vw' : 10 }}
                 transition={{ duration: isCompleting ? 0.6 : 0.25, ease: 'easeInOut' }}
+                style={{ zIndex: 2 }}
               >
                 <motion.div
                   className="loader-progress-fill"
