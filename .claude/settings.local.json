@@ -8,7 +8,8 @@
       "Bash(npm update:*)",
       "Bash(npm install:*)",
       "Bash(ls:*)",
-      "Bash(sips --help:*)"
+      "Bash(sips --help:*)",
+      "Bash(sips -g all:*)"
     ],
     "deny": [],
     "ask": []

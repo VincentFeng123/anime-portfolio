@@ -28,7 +28,7 @@ export default function RootLayout({
         {/* Preload critical images for faster loading */}
         <link rel="preload" href="/4060492.jpg" as="image" fetchPriority="high" />
         <link rel="preload" href="/anime-dragon-character-illustration.jpg" as="image" />
-        <link rel="preload" href="/upscalemedia-compressed.jpg" as="image" />
+        <link rel="preload" href="/upscalemedia-transformed-5-min.png" as="image" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

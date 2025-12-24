@@ -485,6 +485,7 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
   const frameRef = useRef<number>(0)
   const rotationRef = useRef({ x: 0, y: 0 })
   const currentSectionRef = useRef<number>(0)
+  const previousSectionRef = useRef<number>(0)
   const selectedExperienceRef = useRef<number>(0)
   const textPositionsRef = useRef<Float32Array | null>(null)
 
@@ -639,9 +640,11 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
 
   // Update target positions when section changes
   useEffect(() => {
-    if (!targetPositionsRef.current || !cameraRef.current || !particlesRef.current) return
+    if (!targetPositionsRef.current || !cameraRef.current || !particlesRef.current || !currentPositionsRef.current) return
 
-    // Update the ref for animation loop
+    // Track previous section before updating
+    const prevSection = currentSectionRef.current
+    previousSectionRef.current = prevSection
     currentSectionRef.current = currentSection
     selectedExperienceRef.current = selectedExperience
 
@@ -649,6 +652,7 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
     let cameraZ = 10
     let cameraY = 0
     let cameraX = 0
+    let skipTargetSet = false // Flag to skip overwriting target positions
 
     switch (currentSection) {
       case 0: // Hero text
@@ -656,12 +660,46 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
         cameraZ = 20
         cameraY = 0
         cameraX = 0
+
+        // If coming from Card 1 (section 1), make particles fall down in staggered groups first
+        if (prevSection === 1) {
+          // First set targets to below screen in staggered groups
+          const fallPositions = new Float32Array(PARTICLE_COUNT * 3)
+          for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const group = Math.floor(seededRandom(i * 99.7) * 10) // Same groups as rising
+            const groupDelay = group * 4
+            fallPositions[i * 3] = currentPositionsRef.current[i * 3] // Keep current X
+            fallPositions[i * 3 + 1] = -12 - groupDelay // Staggered fall depths
+            fallPositions[i * 3 + 2] = currentPositionsRef.current[i * 3 + 2] // Keep current Z
+          }
+          targetPositionsRef.current.set(fallPositions)
+          skipTargetSet = true // Don't overwrite with newPositions
+
+          // After falling, transition to text
+          setTimeout(() => {
+            if (targetPositionsRef.current && currentSectionRef.current === 0) {
+              targetPositionsRef.current.set(textPositionsRef.current || shapePositions.mountains)
+            }
+          }, 1200)
+        }
         break
       case 1: // Mountains
         newPositions = shapePositions.mountains
         cameraZ = 12
         cameraY = 0
         cameraX = 0
+
+        // If coming from Hero (section 0), start particles from below in staggered groups
+        if (prevSection === 0) {
+          // Assign particles to random groups (0-9) for staggered rising
+          for (let i = 0; i < PARTICLE_COUNT; i++) {
+            const group = Math.floor(seededRandom(i * 99.7) * 10) // 10 groups
+            const groupDelay = group * 4 // Each group starts deeper
+            currentPositionsRef.current[i * 3] = shapePositions.mountains[i * 3] // Keep X
+            currentPositionsRef.current[i * 3 + 1] = -12 - groupDelay // Staggered start depths
+            currentPositionsRef.current[i * 3 + 2] = shapePositions.mountains[i * 3 + 2] // Keep Z
+          }
+        }
         break
       case 2: // Sphere
         newPositions = shapePositions.sphere
@@ -697,7 +735,9 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
         cameraX = 0
     }
 
-    targetPositionsRef.current.set(newPositions)
+    if (!skipTargetSet) {
+      targetPositionsRef.current.set(newPositions)
+    }
 
     // Update particle size based on section
     const material = particlesRef.current.material as THREE.PointsMaterial

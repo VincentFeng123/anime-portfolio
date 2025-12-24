@@ -119,7 +119,7 @@ function HomeContent() {
     let isCancelled = false
     const heroImages = [
       '/anime-dragon-character-illustration.jpg',
-      '/upscalemedia-compressed.jpg'
+      '/upscalemedia-transformed-5-min.png'
     ]
     let loadedCount = 0
     let imagesFullyLoaded = false
@@ -622,7 +622,7 @@ function HomeContent() {
               <div
                 style={{
                   position: 'absolute',
-                  left: '80px',
+                  right: '80px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   fontSize: 'clamp(4rem, 12vw, 10rem)',
@@ -632,6 +632,7 @@ function HomeContent() {
                   lineHeight: 0.9,
                   letterSpacing: '-0.02em',
                   textTransform: 'uppercase',
+                  textAlign: 'right',
                   zIndex: 1,
                   pointerEvents: 'none',
                   userSelect: 'none'
@@ -830,7 +831,7 @@ function HomeContent() {
             }}
           >
             <img
-              src="/upscalemedia-compressed.jpg"
+              src="/upscalemedia-transformed-5-min.png"
               alt=""
               style={{
                 position: 'absolute',
