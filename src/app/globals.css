@@ -25,6 +25,30 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* Technical Blueprint Grid Overlay */
+.tech-grid-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.8s ease-in-out;
+}
+
+.tech-grid-overlay.visible {
+  opacity: 1;
+}
+
+.tech-grid-overlay svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 100vh;
+}
+
 /* Preload GPU backdrop blur to avoid first-frame pop */
 .backdrop-preload {
   position: fixed;
@@ -75,7 +99,6 @@ html {
   content: "";
   position: absolute;
   inset: -24px;
-  background: rgba(255, 255, 255, 0.35);
   filter: blur(28px);
   opacity: 0.8;
   z-index: 0;
@@ -87,7 +110,6 @@ html {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.08));
 }
 
 .about-section .large-ghost {
@@ -141,8 +163,8 @@ html {
   gap: 48px;
   align-items: start;
   z-index: 2;
-  margin-top: 15px;
-  padding-top: 15px;
+  margin-top: 4px;
+  padding-top: 4px;
 }
 
 .about-text-block h2 {
@@ -164,7 +186,7 @@ html {
   box-shadow: 0 18px 38px rgba(0, 0, 0, 0.12);
   overflow: hidden;
   background: #eaeaea;
-  margin-top: -250px;
+  margin-top: -245px;
 }
 
 .about-image-frame img {
@@ -189,6 +211,29 @@ html {
   margin-top: 28px;
 }
 
+.about-bar {
+  width: 100%;
+  max-width: 370px;
+  height: 32px;
+  margin-top: 0;
+  margin-bottom: 0;
+  background-image: url('/4060492.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+}
+
+.about-bar-text {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+}
+
 .about-tile {
   position: relative;
   width: 82px;
@@ -199,20 +244,54 @@ html {
   overflow: hidden;
   isolation: isolate;
   transition: transform 0.2s ease, border 0.2s ease, background 0.2s ease;
-  background: transparent; 
-  background-clip: padding-box;
-  background: rgba(255,255,255, 1);
+  background-image: url('/landscape_background_with_an_abstract_topography_map_design_0305.jpg');
+  background-size: cover;
+  background-position: center;
   border: 1px solid rgba(0, 0, 0);
 }
 
 .about-tile:hover {
-  transform: translateY(-4px);
+  transform: translateY(-6px);
+  background-image: url('/4060492.jpg');
+  background-size: cover;
+  background-position: center;
+  border-color: #000;
+}
+
+.about-tile:hover .count {
+  color: #ffffff;
+}
+
+.about-tile:hover img {
+  filter: brightness(0) invert(1);
 }
 
 .about-tile.active {
   border: 1px solid rgba(0, 0, 0);
-  background: rgba(0, 0, 0, 1);
+  background-image: url('/4060492.jpg');
+  background-size: cover;
+  background-position: center;
   color: white;
+}
+
+.about-tile:nth-child(1) {
+  background-position: 10% 0%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(2) {
+  background-position: 90% 50%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(3) {
+  background-position: 20% 100%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(4) {
+  background-position: 70% 20%;
+  background-size: 1000%;
 }
 
 .about-tile::after {
@@ -359,6 +438,38 @@ html {
   padding-top: 40px;
 }
 
+.projects-nav-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.projects-nav-bar {
+  width: 48px;
+  min-height: 200px;
+  margin-top: 10px;
+  background-image: url('/4060492.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 2px;
+}
+
+.projects-nav-bar-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  margin-left: 0px;
+}
+
 .projects-nav {
   background: transparent;
   border: none;
@@ -396,11 +507,43 @@ html {
   font-size: 22px;
   color: #2b2b2b;
   position: relative;
-  padding-left: 0;
+  padding-left: 18px;
 }
 
 .projects-nav li::before {
   content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  background-color: #888888;
+  transition: background-color 0.2s ease;
+}
+
+.projects-nav li:nth-child(1)::before {
+  border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+}
+
+.projects-nav li:nth-child(2)::before {
+  border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
+}
+
+.projects-nav li:nth-child(3)::before {
+  border-radius: 54% 46% 38% 62% / 49% 70% 30% 51%;
+}
+
+.projects-nav li:nth-child(4)::before {
+  border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+}
+
+.projects-nav li:nth-child(5)::before {
+  border-radius: 45% 55% 60% 40% / 60% 35% 65% 40%;
+}
+
+.projects-nav li:hover::before {
+  background-color: #000;
 }
 
 .projects-title-block {
@@ -592,7 +735,6 @@ html {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 85% 40%, rgba(0, 0, 0, 0.06), transparent 45%);
   pointer-events: none;
   mix-blend-mode: multiply;
 }
@@ -645,10 +787,41 @@ html {
   user-select: none;
 }
 
+.exp-nav-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.exp-nav-bar {
+  width: 48px;
+  min-height: 420px;
+  background-image: url('/4060492.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 2px;
+}
+
+.exp-nav-bar-text {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+  transform: rotate(180deg);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  margin-left: 0px;
+}
+
 .exp-nav {
   list-style: none;
   padding: 0;
-  margin: 8px 0 0;
+  margin: 110px 0 0;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -663,18 +836,39 @@ html {
 }
 
 .exp-nav li::before {
-  content: "◆";
+  content: "";
   position: absolute;
   left: 0;
   top: 50%;
-  transform: translateY(-55%);
-  font-size: 10px;
-  color: #888888;
-  transition: color 0.2s ease;
+  transform: translateY(-50%);
+  width: 7px;
+  height: 7px;
+  background-color: #888888;
+  transition: background-color 0.2s ease;
+}
+
+.exp-nav li:nth-child(1)::before {
+  border-radius: 63% 37% 54% 46% / 55% 48% 52% 45%;
+}
+
+.exp-nav li:nth-child(2)::before {
+  border-radius: 40% 60% 70% 30% / 40% 50% 50% 60%;
+}
+
+.exp-nav li:nth-child(3)::before {
+  border-radius: 54% 46% 38% 62% / 49% 70% 30% 51%;
+}
+
+.exp-nav li:nth-child(4)::before {
+  border-radius: 70% 30% 50% 50% / 30% 60% 40% 70%;
+}
+
+.exp-nav li:nth-child(5)::before {
+  border-radius: 45% 55% 60% 40% / 60% 35% 65% 40%;
 }
 
 .exp-nav li:hover::before {
-  color: #000;
+  background-color: #000;
 }
 
 .exp-subnav {
@@ -931,7 +1125,7 @@ html {
 }
 .exp-strip-stripe-3 {
   --clip: polygon(54.5% 0, 85.5% 15%, 35% 100%, 0 85%);
-  --hoverclip: polygon(34% 0, 81% 25%, 50% 100%, 0% 75%);
+  --hoverclip: polygon(35% 0, 81% 25%, 50% 100%, 0% 75%);
   --hover-height: 700px;
   --strip-height: 600px;
   --strip-offset: -50px;
@@ -1256,4 +1450,369 @@ html {
   to {
     background-size: 100vw 100%;
   }
+}
+
+/* Contact Section - matching other cards */
+.contact-section {
+  position: relative;
+  width: 100vw;
+  min-height: 100vh;
+  height: auto;
+  padding: 140px 72px 72px;
+  overflow: hidden;
+  transform: translateZ(0);
+  will-change: transform, backdrop-filter;
+  isolation: isolate;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.contact-section::before {
+  content: "";
+  position: absolute;
+  inset: -24px;
+  filter: blur(28px);
+  opacity: 0.8;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.contact-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.contact-ghost {
+  position: absolute;
+  top: 50px;
+  left: 180px;
+  font-size: 160px;
+  font-weight: 900;
+  letter-spacing: -8px;
+  line-height: 0.85;
+  color: rgba(0, 0, 0, 0.04);
+  text-transform: uppercase;
+  pointer-events: none;
+  user-select: none;
+  z-index: 2;
+}
+
+.contact-content {
+  position: relative;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 420px 480px;
+  gap: 260px;
+  align-items: center;
+  margin-top: -60px;
+}
+
+.contact-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-header {
+  margin-bottom: 20px;
+}
+
+.contact-label {
+  font-size: 12px;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: #111;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-title {
+  font-size: 56px;
+  font-weight: 900;
+  margin: 8px 0 0;
+  line-height: 1;
+  color: #101010;
+}
+
+.contact-divider {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  align-items: center;
+  gap: 16px;
+  margin: 20px 0 32px;
+}
+
+.contact-divider .solid {
+  height: 8px;
+  background: #0f0f0f;
+  border-radius: 2px;
+}
+
+.contact-divider .hatched {
+  height: 6px;
+  background-image: repeating-linear-gradient(135deg, transparent, transparent 6px, rgba(0, 0, 0, 0.35) 6px, rgba(0, 0, 0, 0.35) 12px);
+  background-size: 24px 8px;
+  opacity: 0.75;
+}
+
+/* Social links */
+.contact-socials {
+  margin-top: 8px;
+}
+
+.contact-socials-label {
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #666;
+  margin-bottom: 16px;
+}
+
+.contact-social-links {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-social-link {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  background-image: url('/landscape_background_with_an_abstract_topography_map_design_0305.jpg');
+  background-size: 200%;
+  position: relative;
+}
+
+.contact-social-link::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.7);
+  pointer-events: none;
+  transition: background 0.3s ease;
+}
+
+.contact-social-link:hover::before,
+.contact-social-link.active::before {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.contact-social-link:nth-child(1) {
+  background-position: 15% 30%;
+}
+
+.contact-social-link:nth-child(2) {
+  background-position: 50% 70%;
+}
+
+.contact-social-link:nth-child(3) {
+  background-position: 85% 45%;
+}
+
+.contact-social-link:nth-child(4) {
+  background-position: 30% 55%;
+}
+
+.contact-social-link:nth-child(5) {
+  background-position: 70% 25%;
+}
+
+.contact-social-link:hover,
+.contact-social-link.active {
+  transform: translateX(8px);
+  background-image: url('/4060492.jpg');
+  background-size: 200%;
+  border-color: #0f0f0f;
+}
+
+.contact-social-link:nth-child(1):hover,
+.contact-social-link:nth-child(1).active {
+  background-position: 15% 30%;
+}
+
+.contact-social-link:nth-child(2):hover,
+.contact-social-link:nth-child(2).active {
+  background-position: 50% 70%;
+}
+
+.contact-social-link:nth-child(3):hover,
+.contact-social-link:nth-child(3).active {
+  background-position: 85% 45%;
+}
+
+.contact-social-link:nth-child(4):hover,
+.contact-social-link:nth-child(4).active {
+  background-position: 30% 55%;
+}
+
+.contact-social-link:nth-child(5):hover,
+.contact-social-link:nth-child(5).active {
+  background-position: 70% 25%;
+}
+
+.contact-social-name {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: #888;
+  min-width: 80px;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.contact-social-link:hover .contact-social-name,
+.contact-social-link.active .contact-social-name {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.contact-social-handle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #111;
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.contact-social-link:hover .contact-social-handle,
+.contact-social-link.active .contact-social-handle {
+  color: #fff;
+}
+
+/* Contact form */
+.contact-right {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  padding-top: 20px;
+}
+
+.contact-form-container {
+  width: 100%;
+  max-width: 480px;
+}
+
+.contact-form-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 24px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.contact-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #666;
+}
+
+.contact-form-group input,
+.contact-form-group textarea {
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 15px;
+  color: #111;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.contact-form-group input::placeholder,
+.contact-form-group textarea::placeholder {
+  color: #999;
+}
+
+.contact-form-group input:focus,
+.contact-form-group textarea:focus {
+  outline: none;
+  border-color: #111;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.contact-form-group textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.contact-form-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #0f0f0f;
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  align-self: flex-start;
+}
+
+.contact-form-submit:hover {
+  background: #333;
+  transform: translateX(4px);
+}
+
+.contact-form-submit .submit-arrow {
+  font-size: 18px;
+  transition: transform 0.3s ease;
+}
+
+.contact-form-submit:hover .submit-arrow {
+  transform: translateX(4px);
+}
+
+.contact-bottom-squares {
+  position: absolute;
+  bottom: 24px;
+  right: 32px;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+}
+
+.contact-bottom-squares .square {
+  width: 18px;
+  height: 18px;
+  background: #0e0e0e;
 }

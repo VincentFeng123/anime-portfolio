@@ -26,6 +26,11 @@ function HomeContent() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [selectedExperience, setSelectedExperience] = useState(0)
   const [expHover, setExpHover] = useState<number | null>(null)
+  const [expMagnet, setExpMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
+  const [projectMagnet, setProjectMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
+  const [selectedSocial, setSelectedSocial] = useState(0)
+  const [socialHover, setSocialHover] = useState<number | null>(null)
+  const [previousHorizontalSection, setPreviousHorizontalSection] = useState(3)
   const currentSectionRef = useRef(0)
   const navRef = useRef<HTMLDivElement | null>(null)
   const navItemRefs = useRef<Array<HTMLButtonElement | null>>([])
@@ -33,7 +38,7 @@ function HomeContent() {
   const aboutShowTimeout = useRef<number | null>(null)
   const isScrolling = useRef(false)
   const lockStartTime = useRef(0)
-  const totalSections = 5
+  const totalSections = 6
   const SCROLL_COOLDOWN = 1500 // 1.5 second cooldown after scroll
   const completionTimeout = useRef<number | null>(null)
   const expandTimeout = useRef<number | null>(null)
@@ -53,12 +58,12 @@ function HomeContent() {
   const sectionTransition = 'transform 1.1s ease-in-out, opacity 1.1s ease-in-out'
 
   const slideStyle = (index: number) => {
-    // For sections 0-3: horizontal sliding between each other
-    // When section 4 is active, sections 0-3 slide UP
-    if (currentSection === 4) {
-      // All horizontal sections slide up when section 4 is active
+    // For sections 0-4: horizontal sliding between each other
+    // When section 5 is active, sections 0-4 slide UP from their current position
+    if (currentSection === 5) {
+      // Keep horizontal position same as before, just slide up
       return {
-        transform: `translate3d(${(index - 3) * 100}vw, -100vh, 0)`,
+        transform: `translate3d(${(index - previousHorizontalSection) * 100}vw, -100vh, 0)`,
         transition: sectionTransition,
         willChange: 'transform, opacity'
       }
@@ -70,32 +75,65 @@ function HomeContent() {
     }
   }
 
-  // Vertical slide style for experience detail (section 4)
+  // Vertical slide style for experience detail (section 5)
   // Slides up from below when active, stays below when not
   const verticalSlideStyle = () => ({
-    transform: `translate3d(0, ${currentSection === 4 ? 0 : 100}vh, 0)`,
+    transform: `translate3d(0, ${currentSection === 5 ? 0 : 100}vh, 0)`,
     transition: sectionTransition,
     willChange: 'transform, opacity'
   })
 
   const goToExperience = (index: number) => {
     setSelectedExperience(index)
-    currentSectionRef.current = 4
+    setPreviousHorizontalSection(currentSectionRef.current) // Remember where we came from
+    currentSectionRef.current = 5
     setIsTransitioning(true)
-    setCurrentSection(4)
+    setCurrentSection(5)
     setTimeout(() => {
       setIsTransitioning(false)
     }, 1100)
   }
 
+  // Magnetic hover effect handlers
+  const handleExpMagnet = (e: React.MouseEvent<HTMLLIElement>, idx: number) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - rect.left - rect.width / 2) * 0.15
+    const y = (e.clientY - rect.top - rect.height / 2) * 0.15
+    setExpMagnet(prev => ({ ...prev, [idx]: { x, y } }))
+  }
+
+  const handleExpMagnetLeave = (idx: number) => {
+    setExpMagnet(prev => ({ ...prev, [idx]: { x: 0, y: 0 } }))
+  }
+
+  const handleProjectMagnet = (e: React.MouseEvent<HTMLLIElement>, idx: number) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - rect.left - rect.width / 2) * 0.15
+    const y = (e.clientY - rect.top - rect.height / 2) * 0.15
+    setProjectMagnet(prev => ({ ...prev, [idx]: { x, y } }))
+  }
+
+  const handleProjectMagnetLeave = (idx: number) => {
+    setProjectMagnet(prev => ({ ...prev, [idx]: { x: 0, y: 0 } }))
+  }
+
   const returnFromExperience = () => {
-    currentSectionRef.current = 3
+    currentSectionRef.current = previousHorizontalSection
     setIsTransitioning(true)
-    setCurrentSection(3)
+    setCurrentSection(previousHorizontalSection)
     setTimeout(() => {
       setIsTransitioning(false)
     }, 1100)
   }
+
+  // Social media entries
+  const socialEntries = [
+    { name: 'Instagram', handle: '@placeholder', icon: 'instagram' },
+    { name: 'X', handle: '@placeholder', icon: 'x' },
+    { name: 'YouTube', handle: '@placeholder', icon: 'youtube' },
+    { name: 'LinkedIn', handle: '/in/placeholder', icon: 'linkedin' },
+    { name: 'GitHub', handle: '@placeholder', icon: 'github' }
+  ]
 
   // Handle section query parameter (client-only)
   useEffect(() => {
@@ -231,9 +269,9 @@ function HomeContent() {
       const direction = e.deltaY > 0 ? 1 : -1
       const nextSection = currentSectionRef.current + direction
 
-      // Check bounds - limit scroll to sections 0-3 (section 4 is click-only)
-      // Also block scrolling when on section 4
-      if (nextSection < 0 || nextSection > 3 || currentSectionRef.current === 4) {
+      // Check bounds - limit scroll to sections 0-4 (section 5 is click-only)
+      // Also block scrolling when on section 5
+      if (nextSection < 0 || nextSection > 4 || currentSectionRef.current === 5) {
         // Unlock immediately if out of bounds, reset timer
         isScrolling.current = false
         lockStartTime.current = 0
@@ -283,8 +321,8 @@ function HomeContent() {
       const direction = deltaY > 0 ? 1 : -1
       const nextSection = currentSectionRef.current + direction
 
-      // Limit touch scroll to sections 0-3, block when on section 4
-      if (nextSection < 0 || nextSection > 3 || currentSectionRef.current === 4) {
+      // Limit touch scroll to sections 0-4, block when on section 5
+      if (nextSection < 0 || nextSection > 4 || currentSectionRef.current === 5) {
         isScrolling.current = false
         return
       }
@@ -553,7 +591,8 @@ function HomeContent() {
     { label: 'Hero', idx: 0, clip: 'polygon(12% 0, 100% 0, 88% 100%, 0 100%)' },
     { label: 'Card 1', idx: 1, clip: 'polygon(8% 0, 100% 12%, 88% 100%, 0 88%)' },
     { label: 'Card 2', idx: 2, clip: 'polygon(10% 0, 100% 0, 92% 100%, 0 90%)' },
-    { label: 'Card 3', idx: 3, clip: 'polygon(6% 0, 100% 8%, 84% 100%, 0 92%)' }
+    { label: 'Card 3', idx: 3, clip: 'polygon(6% 0, 100% 8%, 84% 100%, 0 92%)' },
+    { label: 'Contact', idx: 4, clip: 'polygon(10% 0, 100% 6%, 90% 100%, 0 94%)' }
   ]
 
 
@@ -696,8 +735,8 @@ function HomeContent() {
           color: navColor,
           background: 'transparent',
           zIndex: 1000000,
-          pointerEvents: currentSection === 4 ? 'none' : 'auto',
-          opacity: isTransitioning || currentSection === 4 ? 0 : 1,
+          pointerEvents: currentSection === 5 ? 'none' : 'auto',
+          opacity: isTransitioning || currentSection === 5 ? 0 : 1,
           transition: 'opacity 0.4s ease-in-out'
         }}
         ref={navRef}
@@ -758,7 +797,28 @@ function HomeContent() {
       </nav>
 
       {/* 3D Particle Scene */}
-      <ParticleScene currentSection={currentSection} selectedExperience={selectedExperience} />
+      <ParticleScene currentSection={currentSection} selectedExperience={selectedExperience} selectedSocial={selectedSocial} />
+
+      {/* Technical Blueprint Grid - visible on light sections only */}
+      <div
+        className={`tech-grid-overlay ${currentSection >= 1 && currentSection <= 4 ? 'visible' : ''}`}
+        aria-hidden="true"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }}>
+          <defs>
+            {/* Grid pattern */}
+            <pattern id="techGrid" width="120" height="120" patternUnits="userSpaceOnUse">
+              <line x1="0" y1="0" x2="0" y2="120" stroke="#000" strokeWidth="0.5" opacity="0.15"/>
+              <line x1="120" y1="0" x2="120" y2="120" stroke="#000" strokeWidth="0.5" opacity="0.15"/>
+              <line x1="0" y1="0" x2="120" y2="0" stroke="#000" strokeWidth="0.5" opacity="0.15"/>
+              <line x1="0" y1="120" x2="120" y2="120" stroke="#000" strokeWidth="0.5" opacity="0.15"/>
+            </pattern>
+          </defs>
+
+          {/* Grid pattern */}
+          <rect width="100%" height="100%" fill="url(#techGrid)" />
+        </svg>
+      </div>
 
       <div className="min-h-screen w-full relative overflow-hidden">
         {/* Hero stack */}
@@ -877,6 +937,12 @@ function HomeContent() {
                 <div className="hatched" />
               </div>
 
+              <div className="about-bar">
+                <span className="about-bar-text">
+                  {['ENVIRONMENT', 'LOGISTICS', 'RESEARCH', 'DEFENSE'][aboutIndex]}
+                </span>
+              </div>
+
               <div
                 className="about-body"
                 style={{
@@ -946,46 +1012,49 @@ function HomeContent() {
             <div className="projects-ghost">OUTSIDER</div>
             <div className="projects-grid">
               <div className="projects-left">
-                <div className="projects-nav">
-                  <ul style={{ listStyle: 'none', padding: 0, margin: '0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {projectEntries.map((entry, idx) => {
-                      return (
-                        <li key={entry.name}>
-                          <button
-                            onClick={() => handleProjectSelect(idx)}
-                            onMouseEnter={() => setProjectHover(idx)}
-                            onMouseLeave={() => setProjectHover(null)}
+                <div className="projects-nav-wrapper">
+                  <div className="projects-nav-bar">
+                    <span className="projects-nav-bar-text">PROJECTS</span>
+                  </div>
+                  <div className="projects-nav">
+                    <ul style={{ listStyle: 'none', padding: 0, margin: '0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {projectEntries.map((entry, idx) => {
+                        return (
+                          <li
+                            key={entry.name}
+                            onMouseMove={(e) => handleProjectMagnet(e, idx)}
+                            onMouseLeave={() => handleProjectMagnetLeave(idx)}
                             style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '8px',
-                              border: 'none',
-                              background: 'transparent',
-                              padding: '6px 0',
-                              cursor: 'pointer',
-                              color: '#2b2b2b',
-                              fontSize: '16px',
-                              fontFamily: '"Georgia", "Times New Roman", serif',
-                              textAlign: 'left',
-                              width: '100%'
+                              transition: 'transform 0.15s ease-out',
+                              transform: `translate(${projectMagnet[idx]?.x || 0}px, ${projectMagnet[idx]?.y || 0}px)`
                             }}
                           >
-                            <span
-                              aria-hidden
+                            <button
+                              onClick={() => handleProjectSelect(idx)}
+                              onMouseEnter={() => setProjectHover(idx)}
+                              onMouseLeave={() => setProjectHover(null)}
                               style={{
-                                fontSize: '12px',
-                                color: projectIdx === idx || projectHover === idx ? '#000' : '#888888',
-                                transition: 'color 0.2s ease'
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                border: 'none',
+                                background: 'transparent',
+                                padding: '6px 0',
+                                cursor: 'pointer',
+                                color: '#2b2b2b',
+                                fontSize: '16px',
+                                fontFamily: '"Georgia", "Times New Roman", serif',
+                                textAlign: 'left',
+                                width: '100%'
                               }}
                             >
-                              ◆
-                            </span>
-                            {entry.name}
-                          </button>
-                        </li>
-                      )
-                    })}
-                  </ul>
+                              {entry.name}
+                            </button>
+                          </li>
+                        )
+                      })}
+                    </ul>
+                  </div>
                 </div>
 
                 <div
@@ -1065,23 +1134,30 @@ function HomeContent() {
                 <div className="exp-title-block">
                   <span className="exp-label">Experience</span>
                 </div>
-                <ul className="exp-nav">
-                  {expEntries.map((entry, idx) => (
-                    <li
-                      key={entry.title}
-                      onClick={() => goToExperience(idx)}
-                      onMouseEnter={() => setExpHover(idx)}
-                      onMouseLeave={() => setExpHover(null)}
-                      style={{
-                        cursor: 'pointer',
-                        color: expHover === idx ? '#000' : '#3c3c3c',
-                        transition: 'color 0.2s ease'
-                      }}
-                    >
-                      {entry.title}
-                    </li>
-                  ))}
-                </ul>
+                <div className="exp-nav-wrapper">
+                  <div className="exp-nav-bar">
+                    <span className="exp-nav-bar-text">EXPERIENCE</span>
+                  </div>
+                  <ul className="exp-nav">
+                    {expEntries.map((entry, idx) => (
+                      <li
+                        key={entry.title}
+                        onClick={() => goToExperience(idx)}
+                        onMouseEnter={() => setExpHover(idx)}
+                        onMouseLeave={() => { setExpHover(null); handleExpMagnetLeave(idx) }}
+                        onMouseMove={(e) => handleExpMagnet(e, idx)}
+                        style={{
+                          cursor: 'pointer',
+                          color: expHover === idx ? '#000' : '#3c3c3c',
+                          transition: 'color 0.2s ease, transform 0.15s ease-out',
+                          transform: `translate(${expMagnet[idx]?.x || 0}px, ${expMagnet[idx]?.y || 0}px)`
+                        }}
+                      >
+                        {entry.title}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
 
                 <div className="exp-panels">
@@ -1110,6 +1186,96 @@ function HomeContent() {
           </div>
         </div>
 
+        {/* Content Layer 4 - Social/Contact */}
+        <div
+          className="fixed"
+          style={{
+            width: '100vw',
+            height: '100vh',
+            left: '0',
+            top: '0',
+            zIndex: 23,
+            background: 'transparent',
+            opacity: Math.abs(currentSection - 4) <= 1 ? 1 : 0,
+            pointerEvents: currentSection === 4 ? 'auto' : 'none',
+            ...slideStyle(4)
+          }}
+        >
+          <div className="contact-section">
+            <div className="contact-ghost">CONNECT</div>
+
+            <div className="contact-content">
+              <div className="contact-left">
+                <div className="contact-header">
+                  <div className="contact-label">
+                    <span>Get in Touch</span>
+                    <span style={{ fontSize: '16px' }}>▸</span>
+                  </div>
+                  <div className="contact-title">Contact</div>
+                </div>
+
+                <div className="contact-divider">
+                  <div className="solid" />
+                  <div className="hatched" />
+                </div>
+
+                <div className="contact-socials">
+                  <p className="contact-socials-label">Find me on</p>
+                  <div className="contact-social-links">
+                    {socialEntries.map((entry, idx) => (
+                      <a
+                        key={entry.name}
+                        href="#"
+                        className={`contact-social-link ${socialHover === idx ? 'active' : ''}`}
+                        onMouseEnter={() => setSocialHover(idx)}
+                        onMouseLeave={() => setSocialHover(null)}
+                      >
+                        <span className="contact-social-name">{entry.name}</span>
+                        <span className="contact-social-handle">{entry.handle}</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="contact-right">
+                <div className="contact-form-container">
+                  <h3 className="contact-form-title">Send a Message</h3>
+                  <form className="contact-form">
+                    <div className="contact-form-row">
+                      <div className="contact-form-group">
+                        <label htmlFor="name">Name</label>
+                        <input type="text" id="name" name="name" placeholder="Your name" />
+                      </div>
+                      <div className="contact-form-group">
+                        <label htmlFor="email">Email</label>
+                        <input type="email" id="email" name="email" placeholder="your@email.com" />
+                      </div>
+                    </div>
+                    <div className="contact-form-group">
+                      <label htmlFor="subject">Subject</label>
+                      <input type="text" id="subject" name="subject" placeholder="What's this about?" />
+                    </div>
+                    <div className="contact-form-group">
+                      <label htmlFor="message">Message</label>
+                      <textarea id="message" name="message" rows={5} placeholder="Your message..." />
+                    </div>
+                    <button type="submit" className="contact-form-submit">
+                      Send Message
+                      <span className="submit-arrow">→</span>
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <div className="contact-bottom-squares">
+              <div className="square" />
+              <div className="square" />
+            </div>
+          </div>
+        </div>
+
         {/* Experience Detail Section (slides up from below) */}
         <div
           className="fixed"
@@ -1119,7 +1285,7 @@ function HomeContent() {
             left: '0',
             top: '0',
             zIndex: 30,
-            pointerEvents: currentSection === 4 ? 'auto' : 'none',
+            pointerEvents: currentSection === 5 ? 'auto' : 'none',
             ...verticalSlideStyle()
           }}
         >

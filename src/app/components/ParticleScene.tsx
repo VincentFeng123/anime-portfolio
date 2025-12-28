@@ -6,6 +6,7 @@ import * as THREE from 'three'
 interface ParticleSceneProps {
   currentSection: number
   selectedExperience?: number
+  selectedSocial?: number
 }
 
 const PARTICLE_COUNT = 4000
@@ -423,6 +424,373 @@ function generateSpaceshipPositions(): Float32Array {
   return positions
 }
 
+// Generate Instagram logo shape - rounded square with camera
+function generateInstagramPositions(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const size = 3
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const section = seededRandom(i * 1.1)
+    let x, y, z
+
+    if (section < 0.5) {
+      // Rounded square outline
+      const t = seededRandom(i * 2.1) * 4
+      const side = Math.floor(t)
+      const pos = t - side
+      const cornerRadius = 0.6
+
+      switch (side) {
+        case 0: x = -size + pos * 2 * size; y = size; break
+        case 1: x = size; y = size - pos * 2 * size; break
+        case 2: x = size - pos * 2 * size; y = -size; break
+        default: x = -size; y = -size + pos * 2 * size; break
+      }
+      z = (seededRandom(i * 3.1) - 0.5) * 0.2
+    } else if (section < 0.75) {
+      // Center circle (lens)
+      const angle = seededRandom(i * 4.1) * Math.PI * 2
+      const radius = 1.2 + seededRandom(i * 5.1) * 0.15
+      x = Math.cos(angle) * radius
+      y = Math.sin(angle) * radius
+      z = (seededRandom(i * 6.1) - 0.5) * 0.15
+    } else if (section < 0.9) {
+      // Inner circle
+      const angle = seededRandom(i * 7.1) * Math.PI * 2
+      const radius = 0.6 + seededRandom(i * 8.1) * 0.1
+      x = Math.cos(angle) * radius
+      y = Math.sin(angle) * radius
+      z = (seededRandom(i * 9.1) - 0.5) * 0.1
+    } else {
+      // Flash dot (top right)
+      const angle = seededRandom(i * 10.1) * Math.PI * 2
+      const radius = seededRandom(i * 11.1) * 0.3
+      x = 2.2 + Math.cos(angle) * radius
+      y = 2.2 + Math.sin(angle) * radius
+      z = (seededRandom(i * 12.1) - 0.5) * 0.1
+    }
+
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
+  }
+  return positions
+}
+
+// Generate X (Twitter) logo shape
+function generateXPositions(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const size = 3
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const section = seededRandom(i * 1.2)
+    let x, y, z
+
+    if (section < 0.5) {
+      // First diagonal (top-left to bottom-right)
+      const t = seededRandom(i * 2.2)
+      x = -size + t * 2 * size + (seededRandom(i * 3.2) - 0.5) * 0.3
+      y = size - t * 2 * size + (seededRandom(i * 4.2) - 0.5) * 0.3
+      z = (seededRandom(i * 5.2) - 0.5) * 0.2
+    } else {
+      // Second diagonal (top-right to bottom-left)
+      const t = seededRandom(i * 6.2)
+      x = size - t * 2 * size + (seededRandom(i * 7.2) - 0.5) * 0.3
+      y = size - t * 2 * size + (seededRandom(i * 8.2) - 0.5) * 0.3
+      z = (seededRandom(i * 9.2) - 0.5) * 0.2
+    }
+
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
+  }
+  return positions
+}
+
+// Generate YouTube logo shape - play button
+function generateYouTubePositions(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const section = seededRandom(i * 1.3)
+    let x, y, z
+
+    if (section < 0.6) {
+      // Rounded rectangle outline
+      const t = seededRandom(i * 2.3) * 4
+      const side = Math.floor(t)
+      const pos = t - side
+      const width = 4
+      const height = 2.8
+
+      switch (side) {
+        case 0: x = -width + pos * 2 * width; y = height; break
+        case 1: x = width; y = height - pos * 2 * height; break
+        case 2: x = width - pos * 2 * width; y = -height; break
+        default: x = -width; y = -height + pos * 2 * height; break
+      }
+      z = (seededRandom(i * 3.3) - 0.5) * 0.2
+    } else {
+      // Play triangle
+      const t = seededRandom(i * 4.3) * 3
+      const edge = Math.floor(t)
+      const pos = t - edge
+      const triSize = 1.5
+
+      const v1 = { x: -0.8, y: triSize }
+      const v2 = { x: -0.8, y: -triSize }
+      const v3 = { x: 1.8, y: 0 }
+
+      switch (edge) {
+        case 0:
+          x = v1.x + (v2.x - v1.x) * pos
+          y = v1.y + (v2.y - v1.y) * pos
+          break
+        case 1:
+          x = v2.x + (v3.x - v2.x) * pos
+          y = v2.y + (v3.y - v2.y) * pos
+          break
+        default:
+          x = v3.x + (v1.x - v3.x) * pos
+          y = v3.y + (v1.y - v3.y) * pos
+          break
+      }
+      z = (seededRandom(i * 5.3) - 0.5) * 0.15
+    }
+
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
+  }
+  return positions
+}
+
+// Generate LinkedIn logo shape - "in" text
+function generateLinkedInPositions(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const size = 3
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const section = seededRandom(i * 1.4)
+    let x, y, z
+
+    if (section < 0.4) {
+      // Square outline
+      const t = seededRandom(i * 2.4) * 4
+      const side = Math.floor(t)
+      const pos = t - side
+
+      switch (side) {
+        case 0: x = -size + pos * 2 * size; y = size; break
+        case 1: x = size; y = size - pos * 2 * size; break
+        case 2: x = size - pos * 2 * size; y = -size; break
+        default: x = -size; y = -size + pos * 2 * size; break
+      }
+      z = (seededRandom(i * 3.4) - 0.5) * 0.2
+    } else if (section < 0.55) {
+      // "i" dot
+      const angle = seededRandom(i * 4.4) * Math.PI * 2
+      const radius = seededRandom(i * 5.4) * 0.4
+      x = -1.5 + Math.cos(angle) * radius
+      y = 1.8 + Math.sin(angle) * radius
+      z = (seededRandom(i * 6.4) - 0.5) * 0.1
+    } else if (section < 0.7) {
+      // "i" stem
+      const t = seededRandom(i * 7.4)
+      x = -1.5 + (seededRandom(i * 8.4) - 0.5) * 0.3
+      y = 1 - t * 2.5
+      z = (seededRandom(i * 9.4) - 0.5) * 0.1
+    } else {
+      // "n" shape
+      const part = seededRandom(i * 10.4)
+      if (part < 0.4) {
+        // Left stem
+        const t = seededRandom(i * 11.4)
+        x = 0.3 + (seededRandom(i * 12.4) - 0.5) * 0.25
+        y = 0.8 - t * 2.3
+        z = (seededRandom(i * 13.4) - 0.5) * 0.1
+      } else if (part < 0.6) {
+        // Arch
+        const angle = seededRandom(i * 14.4) * Math.PI
+        x = 0.3 + 0.9 + Math.cos(Math.PI - angle) * 0.9
+        y = 0.8 + Math.sin(angle) * 0.5
+        z = (seededRandom(i * 15.4) - 0.5) * 0.1
+      } else {
+        // Right stem
+        const t = seededRandom(i * 16.4)
+        x = 2.1 + (seededRandom(i * 17.4) - 0.5) * 0.25
+        y = 0.8 - t * 2.3
+        z = (seededRandom(i * 18.4) - 0.5) * 0.1
+      }
+    }
+
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
+  }
+  return positions
+}
+
+// Generate GitHub logo shape - octocat circle
+function generateGitHubPositions(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const radius = 3
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const section = seededRandom(i * 1.5)
+    let x, y, z
+
+    if (section < 0.4) {
+      // Outer circle
+      const angle = seededRandom(i * 2.5) * Math.PI * 2
+      const r = radius + (seededRandom(i * 3.5) - 0.5) * 0.2
+      x = Math.cos(angle) * r
+      y = Math.sin(angle) * r
+      z = (seededRandom(i * 4.5) - 0.5) * 0.2
+    } else if (section < 0.6) {
+      // Cat ears (left)
+      const t = seededRandom(i * 5.5)
+      if (seededRandom(i * 6.5) < 0.5) {
+        x = -1.8 + t * 0.8
+        y = 2 + t * 1
+      } else {
+        x = -1 + t * 0.8
+        y = 3 - t * 1
+      }
+      z = (seededRandom(i * 7.5) - 0.5) * 0.15
+    } else if (section < 0.8) {
+      // Cat ears (right)
+      const t = seededRandom(i * 8.5)
+      if (seededRandom(i * 9.5) < 0.5) {
+        x = 1 + t * 0.8
+        y = 2 + t * 1
+      } else {
+        x = 1.8 - t * 0.8
+        y = 3 - t * 1
+      }
+      z = (seededRandom(i * 10.5) - 0.5) * 0.15
+    } else {
+      // Octocat tentacles at bottom
+      const tentacle = Math.floor(seededRandom(i * 11.5) * 5)
+      const t = seededRandom(i * 12.5)
+      const baseAngle = -Math.PI / 2 + (tentacle - 2) * 0.4
+      const wave = Math.sin(t * Math.PI * 2) * 0.3
+      x = Math.cos(baseAngle) * (1.5 + t * 1.5) + wave
+      y = -1.5 - t * 1.5
+      z = (seededRandom(i * 13.5) - 0.5) * 0.2
+    }
+
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
+  }
+  return positions
+}
+
+// Generate satellite shape
+function generateSatellitePositions(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const scale = 1.2
+
+  // Tilt angles
+  const tiltX = 0.4  // Tilt forward
+  const tiltZ = 0.3  // Tilt to side
+
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    const section = seededRandom(i * 1.8)
+    let x, y, z
+
+    if (section < 0.25) {
+      // Main body - rectangular box
+      x = (seededRandom(i * 2.8) - 0.5) * 1.2
+      y = (seededRandom(i * 3.8) - 0.5) * 1.8
+      z = (seededRandom(i * 4.8) - 0.5) * 1.2
+    } else if (section < 0.55) {
+      // Left solar panel - connected to body
+      x = -0.6 - seededRandom(i * 5.8) * 4
+      y = (seededRandom(i * 6.8) - 0.5) * 0.12
+      z = (seededRandom(i * 7.8) - 0.5) * 2.2
+    } else if (section < 0.85) {
+      // Right solar panel - connected to body
+      x = 0.6 + seededRandom(i * 8.8) * 4
+      y = (seededRandom(i * 9.8) - 0.5) * 0.12
+      z = (seededRandom(i * 10.8) - 0.5) * 2.2
+    } else if (section < 0.92) {
+      // Antenna dish on top
+      const angle = seededRandom(i * 11.8) * Math.PI * 2
+      const r = seededRandom(i * 12.8) * 0.5
+      x = (seededRandom(i * 13.8) - 0.5) * 0.2
+      y = 1.1 + r * 0.25
+      z = Math.cos(angle) * r
+    } else {
+      // Solar panel grid lines
+      const panel = seededRandom(i * 14.8) < 0.5 ? -1 : 1
+      const gridType = seededRandom(i * 15.8)
+      if (gridType < 0.5) {
+        // Horizontal lines
+        x = panel * (0.6 + seededRandom(i * 16.8) * 4)
+        y = 0
+        z = (Math.floor(seededRandom(i * 17.8) * 5) / 5 - 0.4) * 2.2
+      } else {
+        // Vertical lines
+        x = panel * (0.6 + Math.floor(seededRandom(i * 18.8) * 8) / 8 * 4)
+        y = 0
+        z = (seededRandom(i * 19.8) - 0.5) * 2.2
+      }
+    }
+
+    // Add slight noise
+    x += (seededRandom(i * 20.8) - 0.5) * 0.04
+    y += (seededRandom(i * 21.8) - 0.5) * 0.04
+    z += (seededRandom(i * 22.8) - 0.5) * 0.04
+
+    // Apply tilt rotation
+    // Rotate around X axis
+    const y1 = y * Math.cos(tiltX) - z * Math.sin(tiltX)
+    const z1 = y * Math.sin(tiltX) + z * Math.cos(tiltX)
+    // Rotate around Z axis
+    const x2 = x * Math.cos(tiltZ) - y1 * Math.sin(tiltZ)
+    const y2 = x * Math.sin(tiltZ) + y1 * Math.cos(tiltZ)
+
+    positions[i * 3] = x2 * scale
+    positions[i * 3 + 1] = y2 * scale
+    positions[i * 3 + 2] = z1 * scale
+  }
+  return positions
+}
+
+// Generate all 5 social logos at once, stacked vertically (smaller scale)
+function generateAllSocialLogos(): Float32Array {
+  const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const particlesPerLogo = Math.floor(PARTICLE_COUNT / 5)
+  const scale = 0.28 // Smaller logos to fit beside list items
+  const yOffsets = [3.2, 1.6, 0, -1.6, -3.2] // Tighter vertical positions
+
+  // Generate each logo with its own generator, scaled down and positioned
+  const generators = [
+    generateInstagramPositions,
+    generateXPositions,
+    generateYouTubePositions,
+    generateLinkedInPositions,
+    generateGitHubPositions
+  ]
+
+  for (let logoIdx = 0; logoIdx < 5; logoIdx++) {
+    const logoPositions = generators[logoIdx]()
+    const startIdx = logoIdx * particlesPerLogo
+    const endIdx = logoIdx === 4 ? PARTICLE_COUNT : (logoIdx + 1) * particlesPerLogo
+
+    for (let i = startIdx; i < endIdx; i++) {
+      const srcIdx = i - startIdx
+      positions[i * 3] = logoPositions[srcIdx * 3] * scale
+      positions[i * 3 + 1] = logoPositions[srcIdx * 3 + 1] * scale + yOffsets[logoIdx]
+      positions[i * 3 + 2] = logoPositions[srcIdx * 3 + 2] * scale
+    }
+  }
+
+  return positions
+}
+
 // Generate text shape by sampling canvas pixels (browser-only)
 function generateTextPositions(text: string): Float32Array {
   if (typeof document === 'undefined') return new Float32Array(PARTICLE_COUNT * 3)
@@ -474,7 +842,7 @@ function generateTextPositions(text: string): Float32Array {
   return positions
 }
 
-export default function ParticleScene({ currentSection, selectedExperience = 0 }: ParticleSceneProps) {
+export default function ParticleScene({ currentSection, selectedExperience = 0, selectedSocial = 0 }: ParticleSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const sceneRef = useRef<THREE.Scene | null>(null)
   const cameraRef = useRef<THREE.PerspectiveCamera | null>(null)
@@ -487,19 +855,29 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
   const currentSectionRef = useRef<number>(0)
   const previousSectionRef = useRef<number>(0)
   const selectedExperienceRef = useRef<number>(0)
+  const selectedSocialRef = useRef<number>(0)
   const textPositionsRef = useRef<Float32Array | null>(null)
 
   const shapePositions = useMemo(() => ({
     mountains: generateMountainPositions(),
     sphere: generateSpherePositions(),
     spaceship: generateSpaceshipPositions(),
+    satellite: generateSatellitePositions(),
     expShapes: [
       generateHeaventreePositions(),
       generateOriginiumPositions(),
       generateRhodesPositions(),
       generateTalosPositions(),
       generateEndfieldPositions()
-    ]
+    ],
+    socialShapes: [
+      generateInstagramPositions(),
+      generateXPositions(),
+      generateYouTubePositions(),
+      generateLinkedInPositions(),
+      generateGitHubPositions()
+    ],
+    socialAllLogos: generateAllSocialLogos()
   }), [])
 
   useEffect(() => {
@@ -610,7 +988,13 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
         particlesRef.current.rotation.x = 0
         particlesRef.current.rotation.y = 0
         particlesRef.current.rotation.z = 0
-      } else if (currentSectionRef.current === 4 && selectedExperienceRef.current === 2) {
+      } else if (currentSectionRef.current === 4) {
+        // Paper airplane: gentle rotation
+        rotationRef.current.y += 0.003
+        particlesRef.current.rotation.x = 0.1
+        particlesRef.current.rotation.y = rotationRef.current.y
+        particlesRef.current.rotation.z = 0
+      } else if (currentSectionRef.current === 5 && selectedExperienceRef.current === 2) {
         // Rhodes Island: no rotation, slight tilt to show topography
         particlesRef.current.rotation.x = 0.25
         particlesRef.current.rotation.y = 0
@@ -647,6 +1031,7 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
     previousSectionRef.current = prevSection
     currentSectionRef.current = currentSection
     selectedExperienceRef.current = selectedExperience
+    selectedSocialRef.current = selectedSocial
 
     let newPositions: Float32Array
     let cameraZ = 10
@@ -713,7 +1098,13 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
         cameraY = 1
         cameraX = -8
         break
-      case 4: // Experience shapes - each has unique position
+      case 4: // Contact section - satellite
+        newPositions = shapePositions.satellite
+        cameraZ = 12
+        cameraY = 0
+        cameraX = 0
+        break
+      case 5: // Experience shapes - each has unique position
         newPositions = shapePositions.expShapes[selectedExperience] || shapePositions.expShapes[0]
         // Define unique positions for each experience shape
         const expPositions = [
@@ -741,11 +1132,11 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
 
     // Update particle size based on section
     const material = particlesRef.current.material as THREE.PointsMaterial
-    material.size = currentSection === 4 ? 0.04 : currentSection === 0 ? 0.12 : 0.08
+    material.size = currentSection === 5 ? 0.04 : currentSection === 4 ? 0.045 : currentSection === 0 ? 0.12 : 0.08
 
-    // Set camera position - instant for section 4, animated for others
-    if (currentSection === 4) {
-      // Instant position for section 4 experiences
+    // Set camera position - instant for section 5, animated for others
+    if (currentSection === 5) {
+      // Instant position for section 5 experiences
       cameraRef.current.position.x = cameraX
       cameraRef.current.position.y = cameraY
       cameraRef.current.position.z = cameraZ
@@ -768,7 +1159,7 @@ export default function ParticleScene({ currentSection, selectedExperience = 0 }
       }
     }
 
-  }, [currentSection, selectedExperience, shapePositions])
+  }, [currentSection, selectedExperience, selectedSocial, shapePositions])
 
   return (
     <div
