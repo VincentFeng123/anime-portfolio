@@ -39,7 +39,7 @@ function HomeContent() {
   const isScrolling = useRef(false)
   const lockStartTime = useRef(0)
   const totalSections = 6
-  const SCROLL_COOLDOWN = 1500 // 1.5 second cooldown after scroll
+  const SCROLL_COOLDOWN = 2000 // 2 second cooldown after scroll
   const completionTimeout = useRef<number | null>(null)
   const expandTimeout = useRef<number | null>(null)
 
@@ -251,19 +251,27 @@ function HomeContent() {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault()
 
+      // Block if already scrolling
+      if (isScrolling.current) {
+        return
+      }
+
       const now = Date.now()
       const timeSinceLastLock = now - lockStartTime.current
 
-      // FIRST: Block if too soon since last scroll
-      // This catches both locked state AND queued events right after unlock
+      // Block if too soon since last scroll (catches queued events)
       if (lockStartTime.current > 0 && timeSinceLastLock < SCROLL_COOLDOWN) {
+        return
+      }
+
+      // Ignore very small scroll movements
+      if (Math.abs(e.deltaY) < 10) {
         return
       }
 
       // Lock IMMEDIATELY and record the time
       isScrolling.current = true
       lockStartTime.current = now
-      console.log('LOCK ENGAGED')
 
       // Determine direction
       const direction = e.deltaY > 0 ? 1 : -1
@@ -272,13 +280,13 @@ function HomeContent() {
       // Check bounds - limit scroll to sections 0-4 (section 5 is click-only)
       // Also block scrolling when on section 5
       if (nextSection < 0 || nextSection > 4 || currentSectionRef.current === 5) {
-        // Unlock immediately if out of bounds, reset timer
-        isScrolling.current = false
-        lockStartTime.current = 0
+        // Keep lock engaged briefly even on bounds to prevent rapid re-triggers
+        setTimeout(() => {
+          isScrolling.current = false
+        }, 500)
         return
       }
 
-      console.log(`SCROLLING from ${currentSectionRef.current} to ${nextSection}`)
 
       // Update ref IMMEDIATELY
       currentSectionRef.current = nextSection
@@ -297,7 +305,6 @@ function HomeContent() {
       // Unlock after cooldown
       setTimeout(() => {
         isScrolling.current = false
-        console.log('UNLOCKED')
       }, SCROLL_COOLDOWN)
     }
 
@@ -311,19 +318,28 @@ function HomeContent() {
     const handleTouchEnd = (e: TouchEvent) => {
       if (isScrolling.current) return
 
+      const now = Date.now()
+      const timeSinceLastLock = now - lockStartTime.current
+      if (lockStartTime.current > 0 && timeSinceLastLock < SCROLL_COOLDOWN) {
+        return
+      }
+
       const touchEndY = e.changedTouches[0].clientY
       const deltaY = touchStartY - touchEndY
 
       if (Math.abs(deltaY) < 30) return
 
       isScrolling.current = true
+      lockStartTime.current = now
 
       const direction = deltaY > 0 ? 1 : -1
       const nextSection = currentSectionRef.current + direction
 
       // Limit touch scroll to sections 0-4, block when on section 5
       if (nextSection < 0 || nextSection > 4 || currentSectionRef.current === 5) {
-        isScrolling.current = false
+        setTimeout(() => {
+          isScrolling.current = false
+        }, 500)
         return
       }
 
@@ -337,7 +353,7 @@ function HomeContent() {
 
       setTimeout(() => {
         isScrolling.current = false
-      }, 1000)
+      }, SCROLL_COOLDOWN)
     }
 
     window.addEventListener('mousemove', handleMouseMove)
@@ -1129,7 +1145,7 @@ function HomeContent() {
         >
           <div className="experience-section">
             <div className="exp-watermark">DAIMON</div>
-            <div className="exp-grid">
+                        <div className="exp-grid">
               <div className="exp-left">
                 <div className="exp-title-block">
                   <span className="exp-label">Experience</span>

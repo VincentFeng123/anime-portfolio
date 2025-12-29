@@ -714,7 +714,7 @@ html {
   min-height: 100vh;
   height: auto;
   padding: 64px 80px;
-  overflow: visible;
+  overflow: hidden;
   background-color: transparent;
   background-image: none;
   isolation: isolate;
@@ -737,6 +737,26 @@ html {
   inset: 0;
   pointer-events: none;
   mix-blend-mode: multiply;
+}
+
+.exp-corner-img {
+  position: absolute;
+  width: 750px;
+  height: auto;
+  opacity: 0.08;
+  filter: grayscale(100%) brightness(0);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.exp-corner-img.top-right {
+  top: -80px;
+  right: -80px;
+}
+
+.exp-corner-img.bottom-left {
+  bottom: 30px;
+  left: -180px;
 }
 
 .exp-watermark {
