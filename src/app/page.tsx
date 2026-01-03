@@ -1348,7 +1348,7 @@ function HomeContent() {
               className="exp-detail-nav exp-detail-nav-left"
               onClick={() => handleExpChange('prev')}
             >
-              <span className="exp-detail-nav-icon" />
+              <span className="exp-detail-nav-icon">‹</span>
             </button>
 
             {/* Right Arrow */}
@@ -1356,7 +1356,7 @@ function HomeContent() {
               className="exp-detail-nav exp-detail-nav-right"
               onClick={() => handleExpChange('next')}
             >
-              <span className="exp-detail-nav-icon" />
+              <span className="exp-detail-nav-icon">›</span>
             </button>
 
             {/* Main Content */}

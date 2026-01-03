@@ -26,24 +26,30 @@ export default function CustomCursor() {
 
     setIsMounted(true)
 
-    // Mouse move handler - also checks if cursor is in viewport
+    // Mouse move handler - also check if at edge of viewport
     const handleMouseMove = (e: MouseEvent) => {
-      const isInViewport =
-        e.clientX > 0 &&
-        e.clientY > 0 &&
-        e.clientX < window.innerWidth &&
-        e.clientY < window.innerHeight
+      const x = e.clientX
+      const y = e.clientY
 
-      setPosition({ x: e.clientX, y: e.clientY })
-      setIsVisible(isInViewport)
+      // Check if mouse is at or beyond edges (leaving viewport)
+      const atEdge = x <= 0 || y <= 0 || x >= window.innerWidth - 1 || y >= window.innerHeight - 1
+
+      setPosition({ x, y })
+      setIsVisible(!atEdge)
     }
 
     // Mouse leaves the document entirely
-    const handleMouseOut = (e: MouseEvent) => {
-      // relatedTarget is null when mouse leaves the window
-      if (!e.relatedTarget && e.target === document.documentElement) {
-        setIsVisible(false)
-      }
+    const handleMouseLeave = () => {
+      setIsVisible(false)
+    }
+
+    // Mouse enters the document
+    const handleMouseEnter = (e: MouseEvent) => {
+      const x = e.clientX
+      const y = e.clientY
+      // Only show if actually inside viewport
+      const inside = x > 0 && y > 0 && x < window.innerWidth - 1 && y < window.innerHeight - 1
+      setIsVisible(inside)
     }
 
     // Backup: visibilitychange and blur
@@ -75,8 +81,9 @@ export default function CustomCursor() {
       setIsHovering(!!isInteractive)
     }
 
-    window.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseout', handleMouseOut)
+    document.addEventListener('mousemove', handleMouseMove)
+    document.documentElement.addEventListener('mouseleave', handleMouseLeave)
+    document.documentElement.addEventListener('mouseenter', handleMouseEnter)
     document.addEventListener('visibilitychange', handleVisibilityChange)
     window.addEventListener('blur', handleBlur)
     window.addEventListener('focus', handleFocus)
@@ -85,8 +92,9 @@ export default function CustomCursor() {
     document.addEventListener('mouseover', handleElementMouseOver)
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseout', handleMouseOut)
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.documentElement.removeEventListener('mouseleave', handleMouseLeave)
+      document.documentElement.removeEventListener('mouseenter', handleMouseEnter)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
       window.removeEventListener('blur', handleBlur)
       window.removeEventListener('focus', handleFocus)
