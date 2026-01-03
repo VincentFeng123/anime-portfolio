@@ -1,0 +1,147 @@
+'use client'
+
+import { useEffect, useState, useRef } from 'react'
+
+export default function CustomCursor() {
+  const [position, setPosition] = useState({ x: -100, y: -100 })
+  const [smoothPosition, setSmoothPosition] = useState({ x: -100, y: -100 })
+  const [isHovering, setIsHovering] = useState(false)
+  const [isClicking, setIsClicking] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isMounted, setIsMounted] = useState(false)
+  const frameRef = useRef<number>(0)
+
+  // Handle SSR - only render on client
+  useEffect(() => {
+    // Check if touch device
+    const isTouchDevice =
+      window.matchMedia('(pointer: coarse)').matches ||
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0
+
+    if (isTouchDevice) {
+      setIsMounted(false)
+      return
+    }
+
+    setIsMounted(true)
+
+    // Mouse move handler - also checks if cursor is in viewport
+    const handleMouseMove = (e: MouseEvent) => {
+      const isInViewport =
+        e.clientX > 0 &&
+        e.clientY > 0 &&
+        e.clientX < window.innerWidth &&
+        e.clientY < window.innerHeight
+
+      setPosition({ x: e.clientX, y: e.clientY })
+      setIsVisible(isInViewport)
+    }
+
+    // Mouse leaves the document entirely
+    const handleMouseOut = (e: MouseEvent) => {
+      // relatedTarget is null when mouse leaves the window
+      if (!e.relatedTarget && e.target === document.documentElement) {
+        setIsVisible(false)
+      }
+    }
+
+    // Backup: visibilitychange and blur
+    const handleVisibilityChange = () => {
+      if (document.hidden) setIsVisible(false)
+    }
+
+    const handleBlur = () => setIsVisible(false)
+    const handleFocus = () => setIsVisible(true)
+
+    // Click handlers
+    const handleMouseDown = () => setIsClicking(true)
+    const handleMouseUp = () => setIsClicking(false)
+
+    // Hover detection for interactive elements
+    const handleElementMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const isInteractive =
+        target.tagName === 'BUTTON' ||
+        target.tagName === 'A' ||
+        target.tagName === 'INPUT' ||
+        target.tagName === 'TEXTAREA' ||
+        target.closest('button') ||
+        target.closest('a') ||
+        target.hasAttribute('data-cursor-hover') ||
+        target.closest('[data-cursor-hover]') ||
+        window.getComputedStyle(target).cursor === 'pointer'
+
+      setIsHovering(!!isInteractive)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    document.addEventListener('mouseout', handleMouseOut)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('blur', handleBlur)
+    window.addEventListener('focus', handleFocus)
+    window.addEventListener('mousedown', handleMouseDown)
+    window.addEventListener('mouseup', handleMouseUp)
+    document.addEventListener('mouseover', handleElementMouseOver)
+
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseout', handleMouseOut)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('blur', handleBlur)
+      window.removeEventListener('focus', handleFocus)
+      window.removeEventListener('mousedown', handleMouseDown)
+      window.removeEventListener('mouseup', handleMouseUp)
+      document.removeEventListener('mouseover', handleElementMouseOver)
+      cancelAnimationFrame(frameRef.current)
+    }
+  }, [])
+
+  // Smooth animation loop
+  useEffect(() => {
+    if (!isMounted) return
+
+    const animate = () => {
+      setSmoothPosition(prev => ({
+        x: prev.x + (position.x - prev.x) * 0.15,
+        y: prev.y + (position.y - prev.y) * 0.15
+      }))
+      frameRef.current = requestAnimationFrame(animate)
+    }
+    frameRef.current = requestAnimationFrame(animate)
+
+    return () => cancelAnimationFrame(frameRef.current)
+  }, [position, isMounted])
+
+  // Don't render until mounted (avoids SSR issues)
+  if (!isMounted) return null
+
+  return (
+    <>
+      {/* Outer ring - follows with lag */}
+      <div
+        className="custom-cursor-ring"
+        style={{
+          left: smoothPosition.x,
+          top: smoothPosition.y,
+          opacity: isVisible ? 1 : 0,
+          transform: `translate(-50%, -50%) scale(${isClicking ? 0.8 : isHovering ? 1.5 : 1})`,
+          width: isHovering ? '40px' : '32px',
+          height: isHovering ? '40px' : '32px',
+          borderWidth: isHovering ? '2px' : '1px'
+        }}
+      />
+
+      {/* Inner dot - follows cursor exactly */}
+      <div
+        className="custom-cursor-dot"
+        style={{
+          left: position.x,
+          top: position.y,
+          opacity: isVisible ? 1 : 0,
+          transform: `translate(-50%, -50%) scale(${isClicking ? 1.5 : isHovering ? 0 : 1})`
+        }}
+      />
+    </>
+  )
+}

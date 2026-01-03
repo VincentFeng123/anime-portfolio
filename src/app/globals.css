@@ -1313,13 +1313,55 @@ html {
 }
 
 .exp-detail-nav-icon {
-  font-size: 48px;
-  color: rgba(0, 0, 0, 0.4);
-  transition: color 0.3s ease;
+  display: block;
+  width: 20px;
+  height: 40px;
+  position: relative;
+  transition: opacity 0.3s ease;
 }
 
-.exp-detail-nav:hover .exp-detail-nav-icon {
-  color: rgba(0, 0, 0, 0.8);
+.exp-detail-nav-icon::before,
+.exp-detail-nav-icon::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.4);
+  transition: background-color 0.3s ease;
+}
+
+.exp-detail-nav-icon::before {
+  top: 0;
+  transform-origin: left center;
+}
+
+.exp-detail-nav-icon::after {
+  bottom: 0;
+  transform-origin: left center;
+}
+
+.exp-detail-nav-left .exp-detail-nav-icon::before {
+  transform: rotate(30deg);
+}
+
+.exp-detail-nav-left .exp-detail-nav-icon::after {
+  transform: rotate(-30deg);
+}
+
+.exp-detail-nav-right .exp-detail-nav-icon::before {
+  transform-origin: right center;
+  transform: rotate(-30deg);
+}
+
+.exp-detail-nav-right .exp-detail-nav-icon::after {
+  transform-origin: right center;
+  transform: rotate(30deg);
+}
+
+.exp-detail-nav:hover .exp-detail-nav-icon::before,
+.exp-detail-nav:hover .exp-detail-nav-icon::after {
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .exp-detail-content {
