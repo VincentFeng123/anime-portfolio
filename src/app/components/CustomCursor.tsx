@@ -13,13 +13,17 @@ export default function CustomCursor() {
 
   // Handle SSR - only render on client
   useEffect(() => {
-    // Check if touch device
-    const isTouchDevice =
-      window.matchMedia('(pointer: coarse)').matches ||
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0
+    // Check if device has a fine pointer (mouse) - this works even on devices with both touch and mouse
+    const hasMouse = window.matchMedia('(pointer: fine)').matches ||
+                     window.matchMedia('(any-pointer: fine)').matches
 
-    if (isTouchDevice) {
+    // Only disable on pure touch devices (no mouse available)
+    const isPureTouchDevice = !hasMouse && (
+      window.matchMedia('(pointer: coarse)').matches ||
+      window.matchMedia('(hover: none)').matches
+    )
+
+    if (isPureTouchDevice) {
       setIsMounted(false)
       return
     }
