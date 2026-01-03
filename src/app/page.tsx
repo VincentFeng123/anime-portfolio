@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ParticleScene from './components/ParticleScene'
+import CustomCursor from './components/CustomCursor'
 
 function HomeContent() {
   const router = useRouter()
@@ -28,6 +29,7 @@ function HomeContent() {
   const [expHover, setExpHover] = useState<number | null>(null)
   const [expMagnet, setExpMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
   const [projectMagnet, setProjectMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
+  const [submitMagnet, setSubmitMagnet] = useState({ x: 0, y: 0 })
   const [selectedSocial, setSelectedSocial] = useState(0)
   const [socialHover, setSocialHover] = useState<number | null>(null)
   const [previousHorizontalSection, setPreviousHorizontalSection] = useState(3)
@@ -115,6 +117,17 @@ function HomeContent() {
 
   const handleProjectMagnetLeave = (idx: number) => {
     setProjectMagnet(prev => ({ ...prev, [idx]: { x: 0, y: 0 } }))
+  }
+
+  const handleSubmitMagnet = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - rect.left - rect.width / 2) * 0.2
+    const y = (e.clientY - rect.top - rect.height / 2) * 0.2
+    setSubmitMagnet({ x, y })
+  }
+
+  const handleSubmitMagnetLeave = () => {
+    setSubmitMagnet({ x: 0, y: 0 })
   }
 
   const returnFromExperience = () => {
@@ -780,7 +793,6 @@ function HomeContent() {
               border: 'none',
               background,
               color,
-              cursor: 'pointer',
               padding: '6px 10px',
               borderRadius: '12px',
               minWidth: '80px',
@@ -983,11 +995,21 @@ function HomeContent() {
                         key={tile.id}
                         className={`about-tile ${tile.active ? 'active' : ''}`}
                         onClick={() => handleAboutSelect(idx)}
-                        style={{ cursor: 'pointer' }}
+                        data-cursor-hover
                       >
-                        <div className="icon-circle">
-                          <img src={tile.icon} alt={`Tile ${tile.id}`} />
-                        </div>
+                        <div
+                          className="icon-circle"
+                          style={{
+                            WebkitMaskImage: `url(${tile.icon})`,
+                            maskImage: `url(${tile.icon})`,
+                            WebkitMaskSize: 'contain',
+                            maskSize: 'contain',
+                            WebkitMaskRepeat: 'no-repeat',
+                            maskRepeat: 'no-repeat',
+                            WebkitMaskPosition: 'center',
+                            maskPosition: 'center'
+                          }}
+                        />
                         {tile.active && <div className="pill" />}
                         <span className="count">{tile.id}</span>
                       </div>
@@ -1056,7 +1078,6 @@ function HomeContent() {
                                 border: 'none',
                                 background: 'transparent',
                                 padding: '6px 0',
-                                cursor: 'pointer',
                                 color: '#2b2b2b',
                                 fontSize: '16px',
                                 fontFamily: '"Georgia", "Times New Roman", serif',
@@ -1162,8 +1183,8 @@ function HomeContent() {
                         onMouseEnter={() => setExpHover(idx)}
                         onMouseLeave={() => { setExpHover(null); handleExpMagnetLeave(idx) }}
                         onMouseMove={(e) => handleExpMagnet(e, idx)}
+                        data-cursor-hover
                         style={{
-                          cursor: 'pointer',
                           color: expHover === idx ? '#000' : '#3c3c3c',
                           transition: 'color 0.2s ease, transform 0.15s ease-out',
                           transform: `translate(${expMagnet[idx]?.x || 0}px, ${expMagnet[idx]?.y || 0}px)`
@@ -1182,6 +1203,7 @@ function HomeContent() {
                       key={card.id}
                       className={`exp-strip exp-strip-${card.id} ${card.type === 'neutral' ? 'exp-strip-neutral' : 'exp-strip-image'}`}
                       onClick={() => goToExperience(index)}
+                      data-cursor-hover
                       style={{
                         backgroundImage: card.type === 'image'
                           ? `linear-gradient(180deg, rgba(0,0,0,0.38), rgba(0,0,0,0.15)), url('${card.image}')`
@@ -1189,8 +1211,7 @@ function HomeContent() {
                         background: card.color,
                         minWidth: card.minWidth,
                         zIndex: expStrips.length - index,
-                        boxShadow: 'none',
-                        cursor: 'pointer'
+                        boxShadow: 'none'
                       }}
                     >
                     {/* No inner content for plain black strips */}
@@ -1276,7 +1297,17 @@ function HomeContent() {
                       <label htmlFor="message">Message</label>
                       <textarea id="message" name="message" rows={5} placeholder="Your message..." />
                     </div>
-                    <button type="submit" className="contact-form-submit">
+                    <button
+                      type="submit"
+                      className="contact-form-submit"
+                      onMouseMove={handleSubmitMagnet}
+                      onMouseLeave={handleSubmitMagnetLeave}
+                      data-cursor-hover
+                      style={{
+                        transform: `translate(${submitMagnet.x}px, ${submitMagnet.y}px)`,
+                        transition: 'transform 0.15s ease-out'
+                      }}
+                    >
                       Send Message
                       <span className="submit-arrow">→</span>
                     </button>
@@ -1374,8 +1405,11 @@ function HomeContent() {
 
 export default function Home() {
   return (
-    <Suspense fallback={null}>
-      <HomeContent />
-    </Suspense>
+    <>
+      <CustomCursor />
+      <Suspense fallback={null}>
+        <HomeContent />
+      </Suspense>
+    </>
   )
 }

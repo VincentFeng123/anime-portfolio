@@ -262,10 +262,6 @@ html {
   color: #ffffff;
 }
 
-.about-tile:hover img {
-  filter: brightness(0) invert(1);
-}
-
 .about-tile.active {
   border: 1px solid rgba(0, 0, 0);
   background-image: url('/4060492.jpg');
@@ -275,22 +271,46 @@ html {
 }
 
 .about-tile:nth-child(1) {
-  background-position: 10% 0%;
+  background-position: 25% 30%;
   background-size: 1000%;
 }
 
 .about-tile:nth-child(2) {
-  background-position: 90% 50%;
+  background-position: 75% 45%;
   background-size: 1000%;
 }
 
 .about-tile:nth-child(3) {
-  background-position: 20% 100%;
+  background-position: 40% 70%;
   background-size: 1000%;
 }
 
 .about-tile:nth-child(4) {
-  background-position: 70% 20%;
+  background-position: 60% 35%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(1):hover,
+.about-tile:nth-child(1).active {
+  background-position: 25% 30%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(2):hover,
+.about-tile:nth-child(2).active {
+  background-position: 75% 45%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(3):hover,
+.about-tile:nth-child(3).active {
+  background-position: 40% 70%;
+  background-size: 1000%;
+}
+
+.about-tile:nth-child(4):hover,
+.about-tile:nth-child(4).active {
+  background-position: 60% 35%;
   background-size: 1000%;
 }
 
@@ -308,6 +328,13 @@ html {
   inset: 0;
   pointer-events: none;
   z-index: 1;
+  background: rgba(255, 255, 255, 0.75);
+  transition: background 0.2s ease;
+}
+
+.about-tile:hover::before,
+.about-tile.active::before {
+  background: rgba(0, 0, 0, 0.25);
 }
 
 .about-tile .count {
@@ -324,16 +351,17 @@ html {
   color: #ffffff;
 }
 
-.about-tile img {
+.about-tile .icon-circle {
   width: 20px;
   height: 20px;
-  filter: brightness(0); /* force logo to black */
-  opacity: 1;
+  background-color: #000000;
   z-index: 2;
+  transition: background-color 0.2s ease;
 }
 
-.about-tile.active img {
-  filter: brightness(0) invert(1); /* turn logo white when active */
+.about-tile:hover .icon-circle,
+.about-tile.active .icon-circle {
+  background-color: #ffffff;
 }
 
 .about-bottom-squares {
@@ -842,17 +870,19 @@ html {
   list-style: none;
   padding: 0;
   margin: 110px 0 0;
+  margin-left: 10px;
   display: flex;
   flex-direction: column;
   gap: 14px;
   color: #3c3c3c;
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .exp-nav li {
   position: relative;
   padding-left: 16px;
+  font-size: 18px;
 }
 
 .exp-nav li::before {
@@ -1810,7 +1840,6 @@ html {
 
 .contact-form-submit:hover {
   background: #333;
-  transform: translateX(4px);
 }
 
 .contact-form-submit .submit-arrow {
@@ -1835,4 +1864,89 @@ html {
   width: 18px;
   height: 18px;
   background: #0e0e0e;
+}
+
+/* ============ CUSTOM CURSOR ============ */
+.custom-cursor-ring {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2000001;
+  border: 1px solid white;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  transition:
+    width 0.2s ease-out,
+    height 0.2s ease-out,
+    transform 0.15s ease-out,
+    border-width 0.2s ease-out,
+    opacity 0.3s ease;
+  will-change: transform, left, top;
+}
+
+.custom-cursor-dot {
+  position: fixed;
+  pointer-events: none;
+  z-index: 2000002;
+  width: 4px;
+  height: 4px;
+  background: white;
+  border-radius: 50%;
+  mix-blend-mode: difference;
+  transition:
+    transform 0.1s ease-out,
+    opacity 0.3s ease;
+  will-change: transform, left, top;
+}
+
+/* Hide default cursor on non-touch devices */
+@media (pointer: fine) {
+  html,
+  body,
+  *,
+  *::before,
+  *::after {
+    cursor: none !important;
+  }
+
+  /* Extra specificity for stubborn elements */
+  a,
+  button,
+  input,
+  textarea,
+  select,
+  [role="button"],
+  [onclick],
+  [style*="cursor"] {
+    cursor: none !important;
+  }
+
+  /* Prevent cursor during drag/select operations */
+  *::selection {
+    cursor: none !important;
+  }
+
+  *:active,
+  *:focus,
+  *:-webkit-drag {
+    cursor: none !important;
+  }
+
+  /* Disable default drag ghost image that shows cursor */
+  img,
+  a {
+    -webkit-user-drag: none;
+    user-drag: none;
+  }
+
+  /* Prevent text selection cursor on non-input elements */
+  *:not(input):not(textarea) {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea {
+    -webkit-user-select: text;
+    user-select: text;
+  }
 }
