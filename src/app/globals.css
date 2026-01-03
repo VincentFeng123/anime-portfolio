@@ -1314,54 +1314,56 @@ html {
 
 .exp-detail-nav-icon {
   display: block;
-  width: 20px;
-  height: 40px;
+  width: 16px;
+  height: 28px;
   position: relative;
-  transition: opacity 0.3s ease;
 }
 
 .exp-detail-nav-icon::before,
 .exp-detail-nav-icon::after {
   content: '';
   position: absolute;
-  left: 0;
-  width: 100%;
+  width: 18px;
   height: 1px;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.5);
   transition: background-color 0.3s ease;
 }
 
 .exp-detail-nav-icon::before {
   top: 0;
-  transform-origin: left center;
 }
 
 .exp-detail-nav-icon::after {
   bottom: 0;
-  transform-origin: left center;
 }
 
 .exp-detail-nav-left .exp-detail-nav-icon::before {
-  transform: rotate(30deg);
+  left: 0;
+  transform-origin: left center;
+  transform: rotate(35deg);
 }
 
 .exp-detail-nav-left .exp-detail-nav-icon::after {
-  transform: rotate(-30deg);
+  left: 0;
+  transform-origin: left center;
+  transform: rotate(-35deg);
 }
 
 .exp-detail-nav-right .exp-detail-nav-icon::before {
+  right: 0;
   transform-origin: right center;
-  transform: rotate(-30deg);
+  transform: rotate(-35deg);
 }
 
 .exp-detail-nav-right .exp-detail-nav-icon::after {
+  right: 0;
   transform-origin: right center;
-  transform: rotate(30deg);
+  transform: rotate(35deg);
 }
 
 .exp-detail-nav:hover .exp-detail-nav-icon::before,
 .exp-detail-nav:hover .exp-detail-nav-icon::after {
-  background-color: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.9);
 }
 
 .exp-detail-content {

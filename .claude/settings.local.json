@@ -18,7 +18,8 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd topographic backgrounds to tiles and social links, magnetic hover effects, organic blob markers\n\n- Add topographic background images to about tiles with unique positions per tile\n- Add topographic backgrounds to contact social links with overlay effects\n- Add magnetic hover effects to experience and projects nav items\n- Replace diamond markers with organic blob shapes in navigation\n- Add rectangular bars with topographic backgrounds to cards 1, 2, and 3\n- Various spacing and positioning adjustments\n\n🤖 Generated with [Claude Code]\\(https://claude.com/claude-code\\)\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git ls-tree:*)"
     ],
     "deny": [],
     "ask": []
