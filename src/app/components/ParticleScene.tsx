@@ -716,12 +716,29 @@ function generateSatellitePositions(): Float32Array {
       y = (seededRandom(i * 9.8) - 0.5) * 0.12
       z = (seededRandom(i * 10.8) - 0.5) * 2.2
     } else if (section < 0.92) {
-      // Antenna dish on top
+      // Parabolic dish on top
       const angle = seededRandom(i * 11.8) * Math.PI * 2
-      const r = seededRandom(i * 12.8) * 0.5
-      x = (seededRandom(i * 13.8) - 0.5) * 0.2
-      y = 1.1 + r * 0.25
-      z = Math.cos(angle) * r
+      const r = seededRandom(i * 12.8) * 0.8 // Radius of dish
+      // Parabolic curve: y = r^2 * depth factor
+      const depth = r * r * 0.4
+      x = Math.cos(angle) * r
+      y = 1.2 + depth // Dish curves upward from center
+      z = Math.sin(angle) * r
+
+      // Add dish rim for definition
+      if (seededRandom(i * 13.8) < 0.2) {
+        const rimAngle = seededRandom(i * 14.8) * Math.PI * 2
+        x = Math.cos(rimAngle) * 0.8
+        y = 1.2 + 0.8 * 0.8 * 0.4 // At the rim height
+        z = Math.sin(rimAngle) * 0.8
+      }
+
+      // Add antenna feed/arm in center pointing up
+      if (seededRandom(i * 15.8) < 0.15) {
+        x = (seededRandom(i * 16.8) - 0.5) * 0.08
+        y = 1.2 + seededRandom(i * 17.8) * 0.6
+        z = (seededRandom(i * 18.8) - 0.5) * 0.08
+      }
     } else {
       // Solar panel grid lines
       const panel = seededRandom(i * 14.8) < 0.5 ? -1 : 1
