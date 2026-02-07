@@ -28,6 +28,7 @@ function HomeContent() {
   const [selectedExperience, setSelectedExperience] = useState(0)
   const [expHover, setExpHover] = useState<number | null>(null)
   const [stripHover, setStripHover] = useState<number | null>(null)
+  const [watermarkBlend, setWatermarkBlend] = useState(false)
   const watermarkRef = useRef<HTMLDivElement | null>(null)
   const [expMagnet, setExpMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
   const [projectMagnet, setProjectMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
@@ -532,6 +533,77 @@ function HomeContent() {
       image: '/anime-dragon-character-illustration.jpg'
     }
   ]
+
+  const rgbaAlpha = (color: string) => {
+    if (!color || color === 'transparent') return 0
+    const m = color.match(/rgba?\(([^)]+)\)/i)
+    if (!m) return 1
+    const parts = m[1].split(',').map(s => s.trim())
+    if (parts.length < 4) return 1
+    return Math.max(0, Math.min(1, parseFloat(parts[3])))
+  }
+
+  const effectiveBackdropAlpha = (elementsBehind: Element[]) => {
+    let accumAlpha = 0
+    for (const node of elementsBehind) {
+      if (!(node instanceof Element)) continue
+      const cs = getComputedStyle(node)
+      if (cs.display === 'none' || cs.visibility === 'hidden') continue
+      const tag = node.tagName
+      if (tag === 'VIDEO' || tag === 'CANVAS' || tag === 'IMG') return 1
+      if (cs.backgroundImage && cs.backgroundImage !== 'none') return 1
+      const bgA = rgbaAlpha(cs.backgroundColor)
+      const opA = Math.max(0, Math.min(1, parseFloat(cs.opacity) || 1))
+      const layerA = bgA * opA
+      accumAlpha = accumAlpha + (1 - accumAlpha) * layerA
+      if (accumAlpha >= 0.999) return 1
+    }
+    const bodyBg = getComputedStyle(document.body).backgroundColor
+    const htmlBg = getComputedStyle(document.documentElement).backgroundColor
+    return Math.max(rgbaAlpha(bodyBg), rgbaAlpha(htmlBg))
+  }
+
+  const isTransparentBehind = (el: HTMLElement) => {
+    const rect = el.getBoundingClientRect()
+    if (rect.width <= 0 || rect.height <= 0) return true
+    const samples = 9
+    const cols = Math.ceil(Math.sqrt(samples))
+    const rows = Math.ceil(samples / cols)
+    const marginX = rect.width * 0.15
+    const marginY = rect.height * 0.15
+    let transparentHits = 0
+    let checked = 0
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (checked >= samples) break
+        const x = rect.left + marginX + (c / Math.max(1, cols - 1)) * (rect.width - 2 * marginX)
+        const y = rect.top + marginY + (r / Math.max(1, rows - 1)) * (rect.height - 2 * marginY)
+        const stack = document.elementsFromPoint(x, y)
+        const idx = stack.indexOf(el)
+        const behind = idx === -1 ? stack : stack.slice(idx + 1)
+        const alpha = effectiveBackdropAlpha(behind)
+        if (alpha <= 0.01) transparentHits++
+        checked++
+      }
+    }
+    return (transparentHits / Math.max(1, checked)) >= 0.6
+  }
+
+  useEffect(() => {
+    if (stripHover === null) {
+      setWatermarkBlend(false)
+      return
+    }
+    const el = watermarkRef.current
+    if (!el) return
+    const timer = setTimeout(() => {
+      el.style.visibility = 'hidden'
+      const transparent = isTransparentBehind(el)
+      el.style.visibility = ''
+      setWatermarkBlend(!transparent)
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [stripHover])
 
   const aboutIcons = ['/window.svg', '/globe.svg', '/file.svg', '/vercel.svg']
   const aboutTiles = aboutEntries.map((_, idx) => ({
@@ -1165,18 +1237,12 @@ function HomeContent() {
             left: '0',
             top: '0',
             zIndex: 22,
-            background: 'linear-gradient(to bottom, transparent 80%, #fff 80%)',
+            background: 'transparent',
             opacity: Math.abs(currentSection - 3) <= 1 ? 1 : 0,
             pointerEvents: currentSection === 3 ? 'auto' : 'none',
             ...slideStyle(3)
           }}
         >
-          <div
-            ref={watermarkRef}
-            className={`exp-watermark ${stripHover !== null ? 'exp-watermark-active' : ''}`}
-          >
-            {stripHover !== null ? expEntries[stripHover]?.title : 'ARTWORK'}
-          </div>
           <div className="experience-section">
                         <div className="exp-grid">
               <div className="exp-left">
@@ -1233,6 +1299,29 @@ function HomeContent() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Artwork watermark - above all layers */}
+        <div
+          ref={watermarkRef}
+          style={{
+            display: stripHover !== null ? 'block' : 'none',
+            position: 'fixed',
+            bottom: '32px',
+            left: '50%',
+            transform: 'translate(-50%, 0)',
+            zIndex: 9999,
+            color: watermarkBlend ? '#fff' : '#000',
+            fontSize: '120px',
+            fontWeight: 800,
+            letterSpacing: '4px',
+            textTransform: 'uppercase' as const,
+            pointerEvents: 'none' as const,
+            whiteSpace: 'nowrap' as const,
+            ...(watermarkBlend ? { mixBlendMode: 'difference' as const } : {})
+          }}
+        >
+          {stripHover !== null ? expEntries[stripHover]?.title : ''}
         </div>
 
         {/* Content Layer 4 - Social/Contact */}
