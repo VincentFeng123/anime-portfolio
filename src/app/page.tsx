@@ -27,6 +27,8 @@ function HomeContent() {
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [selectedExperience, setSelectedExperience] = useState(0)
   const [expHover, setExpHover] = useState<number | null>(null)
+  const [stripHover, setStripHover] = useState<number | null>(null)
+  const watermarkRef = useRef<HTMLDivElement | null>(null)
   const [expMagnet, setExpMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
   const [projectMagnet, setProjectMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
   const [submitMagnet, setSubmitMagnet] = useState({ x: 0, y: 0 })
@@ -384,42 +386,42 @@ function HomeContent() {
 
   const aboutEntries = [
     {
-      title: 'About Talos-II',
+      title: 'Core Mechanic',
       body: [
-        'The great mountain ranges,',
-        'crisscrossing river systems, and',
-        'rich vegetation cover gave rise to',
-        'a rather resilient biosphere.'
+        'Time advances only when you move.',
+        'Bullets, enemies, and hazards all',
+        'follow the same rule. Every step',
+        'is a decision. Every pause, a plan.'
       ],
       image: '/about-reference.png'
     },
     {
-      title: 'Logistics Hub',
+      title: 'Combat Systems',
       body: [
-        'High-throughput transit bays,',
-        'stacked cargo silos, and',
-        'fully automated drone runs.',
-        'Efficiency forged in steel.'
+        'Weapons range from precision rifles',
+        'to EMP launchers. Enemies layer',
+        'pressure through drones, snipers,',
+        'turrets, and armored mini-bosses.'
       ],
       image: '/anime-style-mythical-dragon-creature.jpg'
     },
     {
-      title: 'Research Wing',
+      title: 'Campaign Stages',
       body: [
-        'Spectral analyzers humming,',
-        'data walls alive with insight,',
-        'teams iterating in quiet rhythm,',
-        'breakthroughs born nightly.'
+        'Five stages of escalating danger,',
+        'from entry wing clearance to',
+        'defuser deployment. Each room a',
+        'lethal puzzle demanding efficiency.'
       ],
       image: '/peakpx.jpg'
     },
     {
-      title: 'Perimeter',
+      title: 'Tactical Tools',
       body: [
-        'Tiered ramparts with panoramic view,',
-        'sensor nets layered in the mist,',
-        'calm under watchful eyes,',
-        'safety in subtle orchestration.'
+        'Deploy recon drones without advancing',
+        'time. Reinforce walls to create safe',
+        'lanes. Plant defusers while waves',
+        'of drones fight to stop the reset.'
       ],
       image: '/anime-style-mythical-dragon-creature.png'
     }
@@ -427,43 +429,43 @@ function HomeContent() {
 
   const projectEntries = [
     {
-      name: 'Noctvoyager',
-      titleTop: 'NOCT',
-      titleBottom: 'VOYAGER',
+      name: 'Developer',
+      titleTop: 'SOFT',
+      titleBottom: 'WARE',
       description:
-        'Roving couriers navigating the frozen frontier, relaying intel across the archipelago in shadow and silence.',
+        'Building interactive experiences from the ground up with clean code, modern frameworks, and a focus on performance.',
       image: '/about-reference.png'
     },
     {
-      name: 'Hyperborean Empire',
-      titleTop: 'HYPER',
-      titleBottom: 'BOREAN',
+      name: 'Game Designer',
+      titleTop: 'GAME',
+      titleBottom: 'DESIGN',
       description:
-        'Imperial legions framed against auroras, siege engines humming, discipline carved into every march.',
+        'Crafting systems-driven gameplay where every mechanic serves a purpose, from motion-gated time to layered enemy encounters.',
       image: '/peakpx.jpg'
     },
     {
-      name: 'The Elysian Church',
-      titleTop: 'ELYSIAN',
-      titleBottom: 'CHURCH',
+      name: 'Artist',
+      titleTop: 'VISUAL',
+      titleBottom: 'ARTIST',
       description:
-        'Cathedrals of glass and steel, choirs harmonizing with turbines, faith and circuitry intertwined.',
+        'Translating ideas into visuals through UI design, illustration, and environment art that brings digital worlds to life.',
       image: '/anime-style-mythical-dragon-creature.jpg'
     },
     {
-      name: 'Republic of Luca',
-      titleTop: 'REPUBLIC',
-      titleBottom: 'LUCA',
+      name: 'Gamer',
+      titleTop: 'GAM',
+      titleBottom: 'ER',
       description:
-        'Merchant fleets and debating halls, trade winds thick with voices, a republic steered by many hands.',
+        'A lifelong passion for games fuels every design decision, from tactical shooters to story-driven RPGs and competitive play.',
       image: '/anime-style-mythical-dragon-creature.png'
     },
     {
-      name: 'No Affiliation',
-      titleTop: 'NO AFF',
-      titleBottom: 'ILIATION',
+      name: 'Creator',
+      titleTop: 'CREA',
+      titleBottom: 'TOR',
       description:
-        'Free agents walking the liminal lines, unbound and observant, opportunists of the in-between.',
+        'Blending code, art, and game design into cohesive experiences. Always learning, always building, always shipping.',
       image: '/about-reference.png'
     }
   ]
@@ -471,65 +473,66 @@ function HomeContent() {
   const expEntries = [
     {
       numeral: 'I',
-      title: 'Heaventree',
-      subtitle: 'HLN SILINK-DIR ✦ ENDRI ARENA',
+      title: 'Banned Books',
+      subtitle: 'MIXED MEDIA ✦ COLLAGE',
       description: [
-        'The tree-like crystals that are scattered throughout the land. They were regarded by the ancestors as gifts from heaven and thus received the name "Heaventree."',
-        'On each Heaventree grow fruit-like crystals shining as bright as the moon, which are known as "Phoxene."',
-        'The Heaventrees have already existed in human society ever since the dawn of mankind. Afterwards, worshippers of the Heaventrees established their religion, while alchemists became obsessed with studying Phoxene, which eventually yielded the incredible Phoxichor Technology...',
-        'The scholars of the Elysian Church once remarked, "The history of Atlasia is the history of the Heaventrees," which is in no way an exaggeration.'
+        'A mixed-media collage exploring censorship and the power of the written word.',
+        'Layered book pages, redacted text, and hand-drawn illustration merge into a single composition.',
+        'The piece uses texture, depth, and found materials to challenge how we interact with information.',
+        'Graphite, ink, and thread on repurposed pages create a tactile, physical presence.'
       ],
-      image: '/about-reference.png'
+      image: '/banned-books.jpeg'
     },
     {
       numeral: 'II',
-      title: 'Originium',
-      subtitle: 'CORE MATERIAL ✦ ENERGY SOURCE',
+      title: 'Catalina Island',
+      subtitle: 'WATERCOLOR ✦ LANDSCAPE',
       description: [
-        'A mysterious crystalline substance found across the land, Originium is both a blessing and a curse to civilization.',
-        'Its immense energy potential has powered cities and technologies beyond imagination.',
-        'Yet exposure to Originium carries grave risks—the infected bear its mark, their bodies slowly crystallizing.',
-        'The study of Originium Arts has become both science and art, wielded by operators in defense of the innocent.'
+        'A watercolor painting capturing the pier and coastline of Catalina Island.',
+        'Vibrant tile patterns in the foreground frame the ocean and the iconic green pier building.',
+        'Color pencil and watercolor blend to render light, water, and architectural detail.',
+        'The composition draws the eye from the decorative tiles up through the shoreline to the horizon.'
       ],
-      image: '/peakpx.jpg'
+      image: '/catalina-island.jpeg'
     },
     {
       numeral: 'III',
-      title: 'Rhodes Island',
-      subtitle: 'PHARMACEUTICAL ✦ OPERATIONS',
+      title: 'Golf',
+      subtitle: 'BALLPOINT PEN ✦ STILL LIFE',
       description: [
-        'A pharmaceutical company on the surface, Rhodes Island serves a greater purpose in the shadows.',
-        'Founded to combat Oripathy, it has grown into a mobile fortress housing operators from across Terra.',
-        'The landship traverses the wastes, offering aid to the afflicted while battling threats that endanger all.',
-        'Under the Doctor\'s guidance, Rhodes Island stands as a beacon of hope in troubled times.'
+        'A detailed ballpoint pen drawing of a golf bag and clubs on the green.',
+        'Cross-hatching and pressure control create depth, shadow, and metallic reflections.',
+        'The red flag in the background anchors the composition and adds a focal point of color.',
+        'Rendered entirely in pen with colored pencil accents for the grass and flag.'
       ],
-      image: '/anime-style-mythical-dragon-creature.jpg'
+      image: '/golf.jpeg'
     },
     {
       numeral: 'IV',
-      title: 'Talos-II',
-      subtitle: 'FRONTIER BASE ✦ NEW HORIZON',
+      title: 'Fireplace',
+      subtitle: 'BALLPOINT PEN ✦ TRIPTYCH',
       description: [
-        'The great mountain ranges, crisscrossing river systems, and rich vegetation cover gave rise to a rather resilient biosphere.',
-        'Talos-II represents humanity\'s latest venture into the unknown frontier.',
-        'Established as a forward operating base, it serves as the launching point for expeditions into uncharted territory.',
-        'The settlement grows daily, attracting pioneers seeking fortune and discovery in equal measure.'
+        'A triptych study of a stone fireplace rendered in blue ballpoint pen.',
+        'Three panels capture the fire pit from different angles, unified by the circular stone border.',
+        'Orange and red accents break the monochrome palette to depict flame and ember.',
+        'Dense cross-hatching builds volume and weight across stone, wood, and fire.'
       ],
-      image: '/anime-style-mythical-dragon-creature.png'
+      image: '/fireplace.jpeg'
     },
     {
       numeral: 'V',
-      title: 'Endfield',
-      subtitle: 'PROTOCOL ✦ INITIATIVE',
+      title: 'Illustration',
+      subtitle: 'FINISHED ✦ PIECES',
       description: [
-        'The Endfield Protocol was established to coordinate humanity\'s expansion across the new frontier.',
-        'Operating under strict guidelines, Endfield teams are deployed to investigate anomalies and secure resources.',
-        'Each operative undergoes rigorous training, prepared for the unknown dangers that await.',
-        'The initiative represents our best hope for understanding this strange new world we call home.'
+        'Fully rendered illustrations created as standalone works or key art for larger projects.',
+        'Each piece is a culmination of design, composition, and technical skill pushed to a polished finish.',
+        'Subject matter ranges from action-heavy scenes to quiet, introspective character moments.',
+        'Illustration is where all the disciplines converge, storytelling through a single frame.'
       ],
-      image: '/about-reference.png'
+      image: '/anime-dragon-character-illustration.jpg'
     }
   ]
+
 
   const aboutIcons = ['/window.svg', '/globe.svg', '/file.svg', '/vercel.svg']
   const aboutTiles = aboutEntries.map((_, idx) => ({
@@ -571,48 +574,53 @@ function HomeContent() {
   const expStrips: ExpStrip[] = [
     {
       id: 'stripe-1',
-      type: 'neutral' as const,
+      type: 'image' as const,
       color: '#000',
       width: '12vw',
       minWidth: '120px',
       height: '80%',
-      offset: 0
+      offset: 0,
+      image: '/banned-books.jpeg'
     },
     {
       id: 'stripe-2',
-      type: 'neutral' as const,
+      type: 'image' as const,
       color: '#000',
       width: '12vw',
       minWidth: '120px',
       height: '80%',
-      offset: 0
+      offset: 0,
+      image: '/catalina-island.jpeg'
     },
     {
       id: 'stripe-3',
-      type: 'neutral' as const,
+      type: 'image' as const,
       color: '#000',
       width: '12vw',
       minWidth: '120px',
       height: '80%',
-      offset: 0
+      offset: 0,
+      image: '/golf.jpeg'
     },
     {
       id: 'stripe-4',
-      type: 'neutral' as const,
+      type: 'image' as const,
       color: '#000',
       width: '12vw',
       minWidth: '120px',
       height: '80%',
-      offset: 0
+      offset: 0,
+      image: '/fireplace.jpeg'
     },
     {
       id: 'stripe-5',
-      type: 'neutral' as const,
+      type: 'image' as const,
       color: '#000',
       width: '12vw',
       minWidth: '120px',
       height: '80%',
-      offset: 0
+      offset: 0,
+      image: '/anime-dragon-character-illustration.jpg'
     }
   ]
 
@@ -954,10 +962,10 @@ function HomeContent() {
             <div className="relative z-10 max-w-6xl mx-auto">
               <div>
                 <div className="about-label">
-                  <span>ARkNIGHTS: ENDFIELD</span>
+                  <span>TIME SHOOTER</span>
                   <span style={{ fontSize: '16px' }}>▸</span>
                 </div>
-                <div className="about-title">Gameplay</div>
+                <div className="about-title">Game Design</div>
               </div>
 
               <div className="about-divider">
@@ -967,7 +975,7 @@ function HomeContent() {
 
               <div className="about-bar">
                 <span className="about-bar-text">
-                  {['ENVIRONMENT', 'LOGISTICS', 'RESEARCH', 'DEFENSE'][aboutIndex]}
+                  {['CONCEPT', 'COMBAT', 'CAMPAIGN', 'TACTICS'][aboutIndex]}
                 </span>
               </div>
 
@@ -1047,12 +1055,12 @@ function HomeContent() {
         >
           <div className="projects-section">
             <div className="large-ghost" />
-            <div className="projects-ghost">OUTSIDER</div>
+            <div className="projects-ghost">CREATOR</div>
             <div className="projects-grid">
               <div className="projects-left">
                 <div className="projects-nav-wrapper">
                   <div className="projects-nav-bar">
-                    <span className="projects-nav-bar-text">PROJECTS</span>
+                    <span className="projects-nav-bar-text">ABOUT ME</span>
                   </div>
                   <div className="projects-nav">
                     <ul style={{ listStyle: 'none', padding: 0, margin: '0', display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -1110,8 +1118,8 @@ function HomeContent() {
                   </div>
 
                   <div className="projects-meta">
-                    <span className="projects-pill">EN</span>
-                    <span>VA: Jamie Hoskin</span>
+                    <span className="projects-pill">VF</span>
+                    <span>Vincent Feng</span>
                     <span>⦿⦿</span>
                   </div>
                 </div>
@@ -1158,22 +1166,27 @@ function HomeContent() {
             left: '0',
             top: '0',
             zIndex: 22,
-            background: 'transparent',
+            background: '#fff',
             opacity: Math.abs(currentSection - 3) <= 1 ? 1 : 0,
             pointerEvents: currentSection === 3 ? 'auto' : 'none',
             ...slideStyle(3)
           }}
         >
+          <div
+            ref={watermarkRef}
+            className={`exp-watermark ${stripHover !== null ? 'exp-watermark-active' : ''}`}
+          >
+            {stripHover !== null ? expEntries[stripHover]?.title : 'ARTWORK'}
+          </div>
           <div className="experience-section">
-            <div className="exp-watermark">DAIMON</div>
                         <div className="exp-grid">
               <div className="exp-left">
                 <div className="exp-title-block">
-                  <span className="exp-label">Experience</span>
+                  <span className="exp-label">Artwork</span>
                 </div>
                 <div className="exp-nav-wrapper">
                   <div className="exp-nav-bar">
-                    <span className="exp-nav-bar-text">EXPERIENCE</span>
+                    <span className="exp-nav-bar-text">ARTWORK</span>
                   </div>
                   <ul className="exp-nav">
                     {expEntries.map((entry, idx) => (
@@ -1203,18 +1216,18 @@ function HomeContent() {
                       key={card.id}
                       className={`exp-strip exp-strip-${card.id} ${card.type === 'neutral' ? 'exp-strip-neutral' : 'exp-strip-image'}`}
                       onClick={() => goToExperience(index)}
+                      onMouseEnter={() => setStripHover(index)}
+                      onMouseLeave={() => setStripHover(null)}
                       data-cursor-hover
                       style={{
-                        backgroundImage: card.type === 'image'
-                          ? `linear-gradient(180deg, rgba(0,0,0,0.38), rgba(0,0,0,0.15)), url('${card.image}')`
-                          : undefined,
-                        background: card.color,
+                        background: card.type === 'image'
+                          ? `linear-gradient(180deg, rgba(0,0,0,0.38), rgba(0,0,0,0.15)), url('${card.image}') center / cover no-repeat`
+                          : card.color,
                         minWidth: card.minWidth,
                         zIndex: expStrips.length - index,
                         boxShadow: 'none'
                       }}
                     >
-                    {/* No inner content for plain black strips */}
                     {null}
                   </div>
                 ))}

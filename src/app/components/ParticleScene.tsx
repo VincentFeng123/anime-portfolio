@@ -9,33 +9,43 @@ interface ParticleSceneProps {
   selectedSocial?: number
 }
 
-const PARTICLE_COUNT = 4000
+const PARTICLE_COUNT = 16000
 
-// Generate jagged hilly terrain floor
+// Seeded random helper for consistent randomness
+const seededRandom = (seed: number) => {
+  const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453
+  return x - Math.floor(x)
+}
+
+// Generate mountainous terrain with seamless looping
 function generateMountainPositions(): Float32Array {
   const positions = new Float32Array(PARTICLE_COUNT * 3)
-  const gridSize = Math.ceil(Math.sqrt(PARTICLE_COUNT)) // ~32x32 grid
+  const gridSizeX = Math.ceil(Math.sqrt(PARTICLE_COUNT))       // Dense grid
+  const gridSizeZ = Math.ceil(PARTICLE_COUNT / gridSizeX)
+
+  const terrainDepth = 50  // Total Z depth - must match terrainBounds * 2 in animation
+  const tileFreq = Math.PI * 2 / terrainDepth  // Makes Z-based waves tile seamlessly
 
   for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const gridX = i % gridSize
-    const gridZ = Math.floor(i / gridSize)
+    const gridX = i % gridSizeX
+    const gridZ = Math.floor(i / gridSizeX)
 
-    // Spread across square floor area
-    const x = (gridX / gridSize - 0.5) * 28
-    const z = (gridZ / gridSize - 0.5) * 28
+    // Dense terrain
+    const x = (gridX / gridSizeX - 0.5) * 55
+    const z = (gridZ / gridSizeZ - 0.5) * terrainDepth
 
-    // Create jagged hills with multiple frequencies
+    // Mountainous jagged terrain with seamless Z tiling
     const hills =
-      Math.sin(x * 0.8) * 0.8 +                    // Large rolling hills
-      Math.sin(z * 0.9) * 0.6 +                    // Cross hills
-      Math.sin(x * 1.5 + z * 1.2) * 0.4 +          // Diagonal ridges
-      Math.sin(x * 2.5) * 0.25 +                   // Sharp peaks
-      Math.cos(z * 2.2) * 0.2 +                    // Sharp valleys
-      Math.sin(x * 3.5 + z * 2.8) * 0.15 +         // Fine detail
-      (Math.random() - 0.5) * 0.1                   // Noise for jaggedness
+      Math.sin(x * 0.8) * 1.5 +                              // Large rolling hills
+      Math.sin(z * tileFreq * 2) * 1.2 +                     // Tiling cross hills
+      Math.sin(x * 1.5 + z * tileFreq * 3) * 0.8 +           // Tiling diagonal ridges
+      Math.sin(x * 2.5) * 0.5 +                              // Sharp peaks
+      Math.cos(z * tileFreq * 5) * 0.4 +                     // Tiling sharp valleys
+      Math.sin(x * 3.5 + z * tileFreq * 7) * 0.25 +          // Tiling fine detail
+      seededRandom(i * 99.9) * 0.15                           // Noise for jaggedness
 
-    // Position at bottom of screen with flatter terrain
-    const y = -4 + hills * 0.35
+    // Position mountains
+    const y = -3 + hills * 0.6
 
     positions[i * 3] = x
     positions[i * 3 + 1] = y
@@ -49,24 +59,29 @@ function generateMountainPositions(): Float32Array {
 function generateSpherePositions(): Float32Array {
   const positions = new Float32Array(PARTICLE_COUNT * 3)
   const radius = 3
+  const visibleParticles = 8000 // Only use 8k particles for the globe
 
   for (let i = 0; i < PARTICLE_COUNT; i++) {
-    // Fibonacci sphere distribution for even spacing
-    const phi = Math.acos(1 - 2 * (i + 0.5) / PARTICLE_COUNT)
-    const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5)
+    if (i < visibleParticles) {
+      // Fibonacci sphere distribution for visible particles
+      const phi = Math.acos(1 - 2 * (i + 0.5) / visibleParticles)
+      const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5)
 
-    positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
-    positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta)
-    positions[i * 3 + 2] = radius * Math.cos(phi)
+      positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta)
+      positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta)
+      positions[i * 3 + 2] = radius * Math.cos(phi)
+    } else {
+      // Extra particles form distant sparse cloud
+      const phi = Math.acos(1 - 2 * seededRandom(i * 7.7))
+      const theta = seededRandom(i * 8.8) * Math.PI * 2
+      const cloudRadius = 15 + seededRandom(i * 9.9) * 20
+      positions[i * 3] = cloudRadius * Math.sin(phi) * Math.cos(theta)
+      positions[i * 3 + 1] = cloudRadius * Math.sin(phi) * Math.sin(theta)
+      positions[i * 3 + 2] = cloudRadius * Math.cos(phi)
+    }
   }
 
   return positions
-}
-
-// Seeded random helper for consistent randomness
-const seededRandom = (seed: number) => {
-  const x = Math.sin(seed * 12.9898 + seed * 78.233) * 43758.5453
-  return x - Math.floor(x)
 }
 
 // Shape 1: Heaventree - Heavenly bushy tree with floating particles
@@ -869,6 +884,7 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
   const currentPositionsRef = useRef<Float32Array | null>(null)
   const frameRef = useRef<number>(0)
   const rotationRef = useRef({ x: 0, y: 0 })
+  const terrainOffsetRef = useRef<number>(0) // For terrain forward movement
   const currentSectionRef = useRef<number>(0)
   const previousSectionRef = useRef<number>(0)
   const selectedExperienceRef = useRef<number>(0)
@@ -1005,8 +1021,30 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
         particlesRef.current.rotation.x = 0
         particlesRef.current.rotation.y = 0
         particlesRef.current.rotation.z = 0
+      } else if (currentSectionRef.current === 1) {
+        // Card 1: Terrain travels forward towards camera
+        particlesRef.current.rotation.x = 0
+        particlesRef.current.rotation.y = 0
+        particlesRef.current.rotation.z = 0
+
+        // Move terrain forward (slow speed for immersive feel)
+        terrainOffsetRef.current += 0.025
+        const terrainBounds = 25 // Half of terrain depth (50/2) - matches generation
+
+        // Apply forward movement to Z positions with looping
+        for (let i = 0; i < PARTICLE_COUNT; i++) {
+          const baseZ = shapePositions.mountains[i * 3 + 2]
+          let newZ = baseZ + terrainOffsetRef.current
+
+          // Loop particles from back to front
+          while (newZ > terrainBounds) {
+            newZ -= terrainBounds * 2
+          }
+
+          positions[i * 3 + 2] = newZ
+        }
       } else if (currentSectionRef.current === 4) {
-        // Paper airplane: gentle rotation
+        // Satellite: gentle rotation
         rotationRef.current.y += 0.003
         particlesRef.current.rotation.x = 0.1
         particlesRef.current.rotation.y = rotationRef.current.y
@@ -1085,10 +1123,10 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
           }, 1200)
         }
         break
-      case 1: // Mountains
+      case 1: // Mountains - forward traveling terrain
         newPositions = shapePositions.mountains
-        cameraZ = 12
-        cameraY = 0
+        cameraZ = 18
+        cameraY = 5
         cameraX = 0
 
         // If coming from Hero (section 0), start particles from below in staggered groups
@@ -1149,7 +1187,7 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
 
     // Update particle size based on section
     const material = particlesRef.current.material as THREE.PointsMaterial
-    material.size = currentSection === 5 ? 0.04 : currentSection === 4 ? 0.045 : currentSection === 0 ? 0.12 : 0.08
+    material.size = currentSection === 5 ? 0.04 : currentSection === 4 ? 0.045 : currentSection === 2 ? 0.05 : currentSection === 0 ? 0.12 : 0.08
 
     // Set camera position - instant for section 5, animated for others
     if (currentSection === 5) {
