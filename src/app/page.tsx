@@ -533,7 +533,6 @@ function HomeContent() {
     }
   ]
 
-
   const aboutIcons = ['/window.svg', '/globe.svg', '/file.svg', '/vercel.svg']
   const aboutTiles = aboutEntries.map((_, idx) => ({
     id: `0${idx + 1}`,
@@ -1166,7 +1165,7 @@ function HomeContent() {
             left: '0',
             top: '0',
             zIndex: 22,
-            background: '#fff',
+            background: 'linear-gradient(to bottom, transparent 80%, #fff 80%)',
             opacity: Math.abs(currentSection - 3) <= 1 ? 1 : 0,
             pointerEvents: currentSection === 3 ? 'auto' : 'none',
             ...slideStyle(3)
