@@ -601,7 +601,7 @@ function HomeContent() {
       const transparent = isTransparentBehind(el)
       el.style.visibility = ''
       setWatermarkBlend(!transparent)
-    }, 250)
+    }, 16)
     return () => clearTimeout(timer)
   }, [stripHover])
 
