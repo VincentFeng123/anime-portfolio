@@ -10,6 +10,7 @@ interface ParticleSceneProps {
 }
 
 const PARTICLE_COUNT = 16000
+const BIG_ORB_COUNT = 50
 
 // Seeded random helper for consistent randomness
 const seededRandom = (seed: number) => {
@@ -84,227 +85,38 @@ function generateSpherePositions(): Float32Array {
   return positions
 }
 
-// Shape 1: Heaventree - Heavenly bushy tree with floating particles
-function generateHeaventreePositions(): Float32Array {
+// Star field - scattered particles in a large sphere for background effect
+function generateStarFieldPositions(): Float32Array {
   const positions = new Float32Array(PARTICLE_COUNT * 3)
+  const minRadius = 8
+  const maxRadius = 48
 
   for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const section = seededRandom(i * 1.1)
-    let x, y, z
+    const phi = Math.acos(1 - 2 * seededRandom(i * 2.1))
+    const theta = seededRandom(i * 3.2) * Math.PI * 2
+    const r = minRadius + seededRandom(i * 4.3) * (maxRadius - minRadius)
 
-    if (section < 0.12) {
-      // Trunk - elegant curved trunk
-      const t = seededRandom(i * 2.3)
-      const trunkHeight = t * 3 - 2.5
-      const trunkRadius = 0.2 + (1 - t) * 0.15
-      const angle = seededRandom(i * 3.1) * Math.PI * 2
-      // Slight curve to trunk
-      const curve = Math.sin(t * Math.PI) * 0.15
-      x = Math.cos(angle) * trunkRadius + curve
-      y = trunkHeight
-      z = Math.sin(angle) * trunkRadius
-    } else {
-      // Big bushy canopy - overlapping spheres
-      const clusterIdx = Math.floor(seededRandom(i * 4.1) * 7)
-      // Cluster centers arranged for bigger bush
-      const clusterCenters = [
-        { x: 0, y: 2.5, z: 0 },       // Top center
-        { x: 1.0, y: 1.6, z: 0.5 },   // Right upper
-        { x: -0.9, y: 1.5, z: 0.6 },  // Left upper
-        { x: 0.3, y: 1.0, z: -0.9 },  // Back
-        { x: -0.5, y: 2.0, z: 0.8 },  // Front upper
-        { x: 0.7, y: 0.8, z: 0.6 },   // Right lower
-        { x: -0.6, y: 0.9, z: -0.5 }, // Left lower
-      ]
-      const cluster = clusterCenters[clusterIdx]
-
-      // Random point within sphere cluster
-      const phi = Math.acos(1 - 2 * seededRandom(i * 5.2))
-      const theta = seededRandom(i * 6.3) * Math.PI * 2
-      const r = seededRandom(i * 7.1) * 1.3
-
-      x = cluster.x + r * Math.sin(phi) * Math.cos(theta)
-      y = cluster.y + r * Math.sin(phi) * Math.sin(theta)
-      z = cluster.z + r * Math.cos(phi)
-    }
-
-    positions[i * 3] = x
-    positions[i * 3 + 1] = y
-    positions[i * 3 + 2] = z
+    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+    positions[i * 3 + 2] = r * Math.cos(phi)
   }
   return positions
 }
 
-// Shape 2: Originium - Hexagonal crystal
-function generateOriginiumPositions(): Float32Array {
-  const positions = new Float32Array(PARTICLE_COUNT * 3)
+// Big glowing orbs scattered in the star field volume
+function generateBigOrbPositions(): Float32Array {
+  const positions = new Float32Array(BIG_ORB_COUNT * 3)
+  const minRadius = 10
+  const maxRadius = 40
 
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const section = seededRandom(i * 1.2)
-    let x, y, z
+  for (let i = 0; i < BIG_ORB_COUNT; i++) {
+    const phi = Math.acos(1 - 2 * seededRandom(i * 5.7 + 100))
+    const theta = seededRandom(i * 6.8 + 200) * Math.PI * 2
+    const r = minRadius + seededRandom(i * 7.9 + 300) * (maxRadius - minRadius)
 
-    if (section < 0.6) {
-      // Hexagonal prism edges
-      const edgeIdx = Math.floor(seededRandom(i * 2.1) * 6)
-      const angle1 = (edgeIdx / 6) * Math.PI * 2
-      const angle2 = ((edgeIdx + 1) / 6) * Math.PI * 2
-      const t = seededRandom(i * 3.3)
-      const radius = 2.5
-      const height = (seededRandom(i * 4.1) - 0.5) * 4
-      x = Math.cos(angle1) * radius * (1 - t) + Math.cos(angle2) * radius * t
-      y = height
-      z = Math.sin(angle1) * radius * (1 - t) + Math.sin(angle2) * radius * t
-    } else if (section < 0.8) {
-      // Top and bottom hexagon faces
-      const angle = seededRandom(i * 5.2) * Math.PI * 2
-      const radius = seededRandom(i * 6.1) * 2.5
-      const top = seededRandom(i * 7.3) > 0.5 ? 2 : -2
-      x = Math.cos(angle) * radius
-      y = top
-      z = Math.sin(angle) * radius
-    } else {
-      // Inner glow particles
-      const angle = seededRandom(i * 8.2) * Math.PI * 2
-      const radius = seededRandom(i * 9.1) * 1.5
-      const height = (seededRandom(i * 10.3) - 0.5) * 3
-      x = Math.cos(angle) * radius
-      y = height
-      z = Math.sin(angle) * radius
-    }
-
-    positions[i * 3] = x
-    positions[i * 3 + 1] = y
-    positions[i * 3 + 2] = z
-  }
-  return positions
-}
-
-// Shape 3: Rhodes Island - Island Map Shape
-function generateRhodesPositions(): Float32Array {
-  const positions = new Float32Array(PARTICLE_COUNT * 3)
-
-  // Island shape function - creates irregular coastline
-  const islandRadius = (angle: number) => {
-    return 2.5 +
-      Math.sin(angle * 2) * 0.6 +
-      Math.sin(angle * 3 + 1) * 0.4 +
-      Math.sin(angle * 5 + 2) * 0.25 +
-      Math.cos(angle * 4) * 0.3
-  }
-
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const section = seededRandom(i * 1.3)
-    let x, y, z
-
-    if (section < 0.7) {
-      // Island landmass - fill the island shape (facing front)
-      const angle = seededRandom(i * 2.1) * Math.PI * 2
-      const maxR = islandRadius(angle)
-      const r = Math.sqrt(seededRandom(i * 3.2)) * maxR // sqrt for even distribution
-      x = Math.cos(angle) * r
-      y = Math.sin(angle) * r
-      // Slight depth variation
-      z = (seededRandom(i * 4.3) - 0.3) * 0.4 + Math.sin(x * 2) * 0.1 + Math.cos(y * 2) * 0.1
-    } else{
-      // Coastline - denser particles at edges
-      const angle = seededRandom(i * 5.1) * Math.PI * 2
-      const coastR = islandRadius(angle) * (0.95 + seededRandom(i * 6.2) * 0.1)
-      x = Math.cos(angle) * coastR
-      y = Math.sin(angle) * coastR
-      z = (seededRandom(i * 7.3) - 0.5) * 0.15
-    }
-
-    positions[i * 3] = x
-    positions[i * 3 + 1] = y
-    positions[i * 3 + 2] = z
-  }
-  return positions
-}
-
-// Shape 4: Talos-II - Planet with close ring
-function generateTalosPositions(): Float32Array {
-  const positions = new Float32Array(PARTICLE_COUNT * 3)
-  const sphereCount = Math.floor(PARTICLE_COUNT * 0.65)
-  const radius = 2
-
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    let x, y, z
-
-    if (i < sphereCount) {
-      // Fibonacci sphere for even distribution
-      const phi = Math.acos(1 - 2 * (i + 0.5) / sphereCount)
-      const theta = Math.PI * (1 + Math.sqrt(5)) * (i + 0.5)
-      x = radius * Math.sin(phi) * Math.cos(theta)
-      y = radius * Math.cos(phi)
-      z = radius * Math.sin(phi) * Math.sin(theta)
-    } else {
-      // Diagonal ring around planet (tilted 25 degrees around X axis)
-      const ringIdx = i - sphereCount
-      const angle = seededRandom(ringIdx * 4.3) * Math.PI * 2
-      const ringRadius = 2.5 + seededRandom(ringIdx * 5.1) * 0.4
-      const tilt = Math.PI * 0.14 // 25 degree tilt
-
-      // Ring in tilted plane
-      x = Math.cos(angle) * ringRadius
-      y = Math.sin(angle) * ringRadius * Math.sin(tilt)
-      z = Math.sin(angle) * ringRadius * Math.cos(tilt)
-
-      // Add slight thickness
-      const thick = (seededRandom(ringIdx * 6.2) - 0.5) * 0.08
-      x += thick * 0.3
-      y += thick * Math.cos(tilt)
-      z += thick * Math.sin(tilt)
-    }
-
-    positions[i * 3] = x
-    positions[i * 3 + 1] = y
-    positions[i * 3 + 2] = z
-  }
-  return positions
-}
-
-// Shape 5: Endfield - Diamond/rhombus
-function generateEndfieldPositions(): Float32Array {
-  const positions = new Float32Array(PARTICLE_COUNT * 3)
-
-  for (let i = 0; i < PARTICLE_COUNT; i++) {
-    const section = seededRandom(i * 1.5)
-    let x, y, z
-
-    if (section < 0.7) {
-      // Diamond edges
-      const edgeIdx = Math.floor(seededRandom(i * 2.1) * 8)
-      const t = seededRandom(i * 3.2)
-
-      // Diamond vertices: top, bottom, and 4 middle points
-      const vertices = [
-        [0, 3, 0],    // top
-        [0, -3, 0],   // bottom
-        [2, 0, 0],    // right
-        [-2, 0, 0],   // left
-        [0, 0, 2],    // front
-        [0, 0, -2],   // back
-      ]
-
-      const v1 = vertices[edgeIdx % 6]
-      const v2 = vertices[(edgeIdx + 1) % 6]
-
-      x = v1[0] * (1 - t) + v2[0] * t + (seededRandom(i * 4.1) - 0.5) * 0.2
-      y = v1[1] * (1 - t) + v2[1] * t + (seededRandom(i * 5.2) - 0.5) * 0.2
-      z = v1[2] * (1 - t) + v2[2] * t + (seededRandom(i * 6.3) - 0.5) * 0.2
-    } else {
-      // Inner sparkle
-      const radius = seededRandom(i * 7.1) * 1.5
-      const angle = seededRandom(i * 8.2) * Math.PI * 2
-      const height = (seededRandom(i * 9.3) - 0.5) * 4
-      x = Math.cos(angle) * radius * 0.5
-      y = height
-      z = Math.sin(angle) * radius * 0.5
-    }
-
-    positions[i * 3] = x
-    positions[i * 3 + 1] = y
-    positions[i * 3 + 2] = z
+    positions[i * 3] = r * Math.sin(phi) * Math.cos(theta)
+    positions[i * 3 + 1] = r * Math.sin(phi) * Math.sin(theta)
+    positions[i * 3 + 2] = r * Math.cos(phi)
   }
   return positions
 }
@@ -890,19 +702,15 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
   const selectedExperienceRef = useRef<number>(0)
   const selectedSocialRef = useRef<number>(0)
   const textPositionsRef = useRef<Float32Array | null>(null)
+  const bigOrbsRef = useRef<THREE.Points | null>(null)
 
   const shapePositions = useMemo(() => ({
     mountains: generateMountainPositions(),
     sphere: generateSpherePositions(),
     spaceship: generateSpaceshipPositions(),
     satellite: generateSatellitePositions(),
-    expShapes: [
-      generateHeaventreePositions(),
-      generateOriginiumPositions(),
-      generateRhodesPositions(),
-      generateTalosPositions(),
-      generateEndfieldPositions()
-    ],
+    starField: generateStarFieldPositions(),
+    bigOrbs: generateBigOrbPositions(),
     socialShapes: [
       generateInstagramPositions(),
       generateXPositions(),
@@ -991,6 +799,41 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
     scene.add(particles)
     particlesRef.current = particles
 
+    // Create big glowing orbs for star field
+    const orbCanvas = document.createElement('canvas')
+    orbCanvas.width = 128
+    orbCanvas.height = 128
+    const orbCtx = orbCanvas.getContext('2d')!
+    orbCtx.clearRect(0, 0, 128, 128)
+    const orbGradient = orbCtx.createRadialGradient(64, 64, 0, 64, 64, 64)
+    orbGradient.addColorStop(0, 'rgba(0, 0, 0, 0.7)')
+    orbGradient.addColorStop(0.2, 'rgba(0, 0, 0, 0.4)')
+    orbGradient.addColorStop(0.5, 'rgba(0, 0, 0, 0.15)')
+    orbGradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
+    orbCtx.fillStyle = orbGradient
+    orbCtx.beginPath()
+    orbCtx.arc(64, 64, 64, 0, Math.PI * 2)
+    orbCtx.fill()
+    const orbTexture = new THREE.CanvasTexture(orbCanvas)
+
+    const orbGeometry = new THREE.BufferGeometry()
+    orbGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(shapePositions.bigOrbs), 3))
+
+    const orbMaterial = new THREE.PointsMaterial({
+      color: 0xffffff,
+      size: 1.8,
+      transparent: true,
+      opacity: 0.5,
+      sizeAttenuation: true,
+      map: orbTexture,
+      depthWrite: false
+    })
+
+    const bigOrbs = new THREE.Points(orbGeometry, orbMaterial)
+    bigOrbs.visible = false
+    scene.add(bigOrbs)
+    bigOrbsRef.current = bigOrbs
+
     // Handle resize
     const handleResize = () => {
       if (!cameraRef.current || !rendererRef.current) return
@@ -1049,11 +892,19 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
         particlesRef.current.rotation.x = 0.1
         particlesRef.current.rotation.y = rotationRef.current.y
         particlesRef.current.rotation.z = 0
-      } else if (currentSectionRef.current === 5 && selectedExperienceRef.current === 2) {
-        // Rhodes Island: no rotation, slight tilt to show topography
-        particlesRef.current.rotation.x = 0.25
-        particlesRef.current.rotation.y = 0
+      } else if (currentSectionRef.current === 5) {
+        // Star field: slow drifting rotation
+        rotationRef.current.y += 0.0008
+        rotationRef.current.x += 0.0003
+        particlesRef.current.rotation.x = rotationRef.current.x
+        particlesRef.current.rotation.y = rotationRef.current.y
         particlesRef.current.rotation.z = 0
+        // Sync big orbs rotation
+        if (bigOrbsRef.current) {
+          bigOrbsRef.current.rotation.x = rotationRef.current.x
+          bigOrbsRef.current.rotation.y = rotationRef.current.y
+          bigOrbsRef.current.rotation.z = 0
+        }
       } else {
         rotationRef.current.y += 0.002
         particlesRef.current.rotation.x = 0
@@ -1159,20 +1010,11 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
         cameraY = 0
         cameraX = 0
         break
-      case 5: // Experience shapes - each has unique position
-        newPositions = shapePositions.expShapes[selectedExperience] || shapePositions.expShapes[0]
-        // Define unique positions for each experience shape
-        const expPositions = [
-          { x: 3.5, y: 0.3, z: 8 },   // 0: Heaventree
-          { x: 3.5, y: 0, z: 8 },     // 1: Originium
-          { x: 3.7, y: 0, z: 9 },     // 2: Rhodes Island (star compass)
-          { x: 3.0, y: 0, z: 8 },     // 3: Talos-II (planet)
-          { x: 3.5, y: 0, z: 8 },     // 4: Endfield
-        ]
-        const pos = expPositions[selectedExperience] || expPositions[0]
-        cameraX = pos.x
-        cameraY = pos.y
-        cameraZ = pos.z
+      case 5: // Star field background for artwork detail
+        newPositions = shapePositions.starField
+        cameraX = 0
+        cameraY = 0
+        cameraZ = 15
         break
       default:
         newPositions = shapePositions.mountains
@@ -1188,6 +1030,11 @@ export default function ParticleScene({ currentSection, selectedExperience = 0, 
     // Update particle size based on section
     const material = particlesRef.current.material as THREE.PointsMaterial
     material.size = currentSection === 5 ? 0.04 : currentSection === 4 ? 0.045 : currentSection === 2 ? 0.05 : currentSection === 0 ? 0.12 : 0.08
+
+    // Toggle big orbs visibility
+    if (bigOrbsRef.current) {
+      bigOrbsRef.current.visible = currentSection === 5
+    }
 
     // Set camera position - instant for section 5, animated for others
     if (currentSection === 5) {

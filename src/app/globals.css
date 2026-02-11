@@ -23,6 +23,11 @@ body {
   background-color: #ffffff;
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Technical Blueprint Grid Overlay */
@@ -80,6 +85,9 @@ body {
 html {
   -ms-overflow-style: none;
   scrollbar-width: none;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
 }
 
 /* About section styling */
@@ -150,9 +158,10 @@ html {
 }
 
 .about-divider .hatched {
-  height: 8px;
-  background-image: repeating-linear-gradient(135deg, transparent, transparent 6px, rgba(0, 0, 0, 0.35) 6px, rgba(0, 0, 0, 0.35) 12px);
-  background-size: 24px 8px;
+  height: 24px;
+  background-image: url('/wave-divider-1.svg');
+  background-size: 400px 24px;
+  background-repeat: repeat-x;
   opacity: 0.75;
 }
 
@@ -873,13 +882,13 @@ html {
   gap: 14px;
   color: #3c3c3c;
   font-family: "Georgia", "Times New Roman", serif;
-  font-size: 20px;
+  font-size: 16px;
 }
 
 .exp-nav li {
   position: relative;
   padding-left: 16px;
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .exp-nav li::before {
@@ -1148,25 +1157,24 @@ html {
 .exp-panels:has(.exp-strip-stripe-4:hover) .exp-strip-stripe-1 { transform: translateX(-7px); }
 .exp-panels:has(.exp-strip-stripe-4:hover) .exp-strip-stripe-2 { transform: translateX(-7px); }
 .exp-panels:has(.exp-strip-stripe-4:hover) .exp-strip-stripe-3 { transform: translateX(-7px); }
-.exp-panels:has(.exp-strip-stripe-4:hover) .exp-strip-stripe-5 { transform: translateX(35px); }
+.exp-panels:has(.exp-strip-stripe-4:hover) .exp-strip-stripe-5 { transform: translateX(40px); }
 
-.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-1 { transform: translateX(-10px); }
-.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-2 { transform: translateX(-10px); }
-.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-3 { transform: translateX(-10px); }
-.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-4 { transform: translateX(-10px); }
+.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-1 { transform: translateX(0px); }
+.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-2 { transform: translateX(0px); }
+.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-3 { transform: translateX(0px); }
+.exp-panels:has(.exp-strip-stripe-5:hover) .exp-strip-stripe-4 { transform: translateX(0px); }
 
 
 .exp-strip-stripe-1 { 
-  --clip: polygon(40% 0, 90% 0, 50% 100%, 0% 100%); 
-  --hoverclip: polygon(30% 0, 95% 0, 68% 100%, 5% 100%);
+  --clip: polygon(40% 0, 92% 0, 59% 100%, 5% 100%); 
+  --hoverclip: polygon(30% 0, 95% 0, 75% 100%, 10% 100%);
   --strip-height: 300px; 
   --strip-offset: 0px; 
-  --strip-width: 240px;
-  --strip-hover-width: 350px;
+  --strip-width: 300px;
 }
 .exp-strip-stripe-2 { 
   --clip: polygon(53.4% 0, 85.5% 15%, 40% 100%, 0% 100%); 
-  --hoverclip: polygon(37% 0, 85% 20%, 60% 100%, 5% 100%);
+  --hoverclip: polygon(37% 0, 83.5% 25%, 60% 100%, 5% 100%);
   --strip-height: 500px; 
   --strip-offset: 100px;
   --left-offset: -210px;
@@ -1174,7 +1182,7 @@ html {
 }
 .exp-strip-stripe-3 {
   --clip: polygon(54.5% 0, 85.5% 15%, 35% 100%, 0 85%);
-  --hoverclip: polygon(35% 0, 81% 25%, 50% 100%, 0% 75%);
+  --hoverclip: polygon(35% 0, 81% 25%, 49% 100%, 1% 75%);
   --hover-height: 700px;
   --strip-height: 600px;
   --strip-offset: -50px;
@@ -1183,7 +1191,7 @@ html {
 }
 .exp-strip-stripe-4 { 
   --clip: polygon(44% 0, 90% 0, 50% 100%, 0% 100%);
-  --hoverclip: polygon(31% 0, 95% 0, 70% 100%, 5% 100%); 
+  --hoverclip: polygon(31% 0, 95% 0, 71% 100%, 7% 100%); 
   --strip-height: 450px; 
   --strip-offset: 75px;
   --left-offset: -180px; 
@@ -1191,7 +1199,7 @@ html {
 }
 .exp-strip-stripe-5 { 
   --clip: polygon(53.4% 0, 93% 15%, 50% 100%, 0% 100%);
-  --hoverclip: polygon(40% 0, 95% 20%, 70% 100%, 5% 100%); 
+  --hoverclip: polygon(40% 0, 93% 25%, 70% 100%, 8% 100%); 
   --strip-height: 600px; 
   --strip-offset: 100px; 
   --left-offset: -190px;
@@ -1337,8 +1345,20 @@ html {
   align-items: center;
 }
 
-.exp-detail-particle-area {
-  /* Empty area where particles show through */
+.exp-detail-image-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.exp-detail-artwork {
+  max-width: 60%;
+  max-height: 55vh;
+  object-fit: contain;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
 }
 
 .exp-detail-text {
@@ -1518,6 +1538,7 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
+  background-color: transparent;
 }
 
 .contact-section::before {
@@ -1605,9 +1626,10 @@ html {
 }
 
 .contact-divider .hatched {
-  height: 6px;
-  background-image: repeating-linear-gradient(135deg, transparent, transparent 6px, rgba(0, 0, 0, 0.35) 6px, rgba(0, 0, 0, 0.35) 12px);
-  background-size: 24px 8px;
+  height: 24px;
+  background-image: url('/wave-divider-2.svg');
+  background-size: 400px 24px;
+  background-repeat: repeat-x;
   opacity: 0.75;
 }
 
@@ -1790,15 +1812,14 @@ html {
   text-transform: uppercase;
   letter-spacing: 1.5px;
   color: #666;
+  text-shadow: -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff, 2px 2px 0 #fff, 0 -2px 0 #fff, 0 2px 0 #fff, -2px 0 0 #fff, 2px 0 0 #fff;
 }
 
 .contact-form-group input,
 .contact-form-group textarea {
   padding: 14px 16px;
   border: 1px solid rgba(0, 0, 0, 0.12);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: linear-gradient(rgba(255,255,255,0.8), rgba(255,255,255,0.8)), url('/landscape_background_with_an_abstract_topography_map_design_0305.jpg') center / 200% no-repeat #fff;
   font-size: 15px;
   color: #111;
   transition: all 0.3s ease;
@@ -1814,7 +1835,6 @@ html {
 .contact-form-group textarea:focus {
   outline: none;
   border-color: #111;
-  background: rgba(255, 255, 255, 0.95);
 }
 
 .contact-form-group textarea {
@@ -1828,7 +1848,8 @@ html {
   justify-content: center;
   gap: 6px;
   padding: 10px 16px;
-  background: #0f0f0f;
+  background-image: url('/4060492.jpg');
+  background-size: 200%;
   color: #fff;
   border: none;
   font-size: 11px;
@@ -1838,10 +1859,6 @@ html {
   cursor: pointer;
   transition: all 0.3s ease;
   align-self: flex-start;
-}
-
-.contact-form-submit:hover {
-  background: #333;
 }
 
 .contact-form-submit .submit-arrow {

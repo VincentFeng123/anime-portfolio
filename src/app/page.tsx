@@ -90,6 +90,7 @@ function HomeContent() {
 
   const goToExperience = (index: number) => {
     setSelectedExperience(index)
+    setStripHover(null)
     setPreviousHorizontalSection(currentSectionRef.current) // Remember where we came from
     currentSectionRef.current = 5
     setIsTransitioning(true)
@@ -697,9 +698,9 @@ function HomeContent() {
 
   const navItems = [
     { label: 'Hero', idx: 0, clip: 'polygon(12% 0, 100% 0, 88% 100%, 0 100%)' },
-    { label: 'Card 1', idx: 1, clip: 'polygon(8% 0, 100% 12%, 88% 100%, 0 88%)' },
-    { label: 'Card 2', idx: 2, clip: 'polygon(10% 0, 100% 0, 92% 100%, 0 90%)' },
-    { label: 'Card 3', idx: 3, clip: 'polygon(6% 0, 100% 8%, 84% 100%, 0 92%)' },
+    { label: 'Game', idx: 1, clip: 'polygon(8% 0, 100% 12%, 88% 100%, 0 88%)' },
+    { label: 'About', idx: 2, clip: 'polygon(10% 0, 100% 0, 92% 100%, 0 90%)' },
+    { label: 'Artwork', idx: 3, clip: 'polygon(6% 0, 100% 8%, 84% 100%, 0 92%)' },
     { label: 'Contact', idx: 4, clip: 'polygon(10% 0, 100% 6%, 90% 100%, 0 94%)' }
   ]
 
@@ -911,7 +912,7 @@ function HomeContent() {
         className={`tech-grid-overlay ${currentSection >= 1 && currentSection <= 4 ? 'visible' : ''}`}
         aria-hidden="true"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="none" style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh' }}>
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
           <defs>
             {/* Grid pattern */}
             <pattern id="techGrid" width="120" height="120" patternUnits="userSpaceOnUse">
@@ -935,6 +936,7 @@ function HomeContent() {
             position: 'fixed',
             inset: 0,
             zIndex: 19,
+            overflow: 'hidden',
             pointerEvents: currentSection === 0 ? 'auto' : 'none',
             opacity: Math.abs(currentSection - 0) <= 1 ? 1 : 0,
             ...slideStyle(0)
@@ -959,7 +961,7 @@ function HomeContent() {
           <div
             className="absolute inset-0 z-5"
             style={{
-              transform: `translate(${(mousePosition.x - 50) * textTransformMultiplierX}px, ${(mousePosition.y - 50) * textTransformMultiplierY}px)`,
+              transform: currentSection === 0 ? `translate(${(mousePosition.x - 50) * textTransformMultiplierX}px, ${(mousePosition.y - 50) * textTransformMultiplierY}px)` : 'translate(0, 0)',
               transformOrigin: 'center center',
               transition: 'transform 0.1s ease-out'
             }}
@@ -991,7 +993,7 @@ function HomeContent() {
           <div
             className="absolute inset-0 z-10"
             style={{
-              transform: `translate(${(mousePosition.x - 50) * imageTransformMultiplierX}px, ${(mousePosition.y - 50) * imageTransformMultiplierY}px)`,
+              transform: currentSection === 0 ? `translate(${(mousePosition.x - 50) * imageTransformMultiplierX}px, ${(mousePosition.y - 50) * imageTransformMultiplierY}px)` : 'translate(0, 0)',
               transformOrigin: 'center center',
               transition: 'transform 0.1s ease-out',
               zIndex: 2
@@ -1005,8 +1007,9 @@ function HomeContent() {
                 inset: 0,
                 width: '100%',
                 height: '100%',
+                transform: 'scale(1.1)',
                 objectFit: 'cover',
-                objectPosition: `${characterBaseX + (mousePosition.x - 50) * parallaxSensitivityX}% ${characterBaseY + (mousePosition.y - 50) * parallaxSensitivityY}%`,
+                objectPosition: currentSection === 0 ? `${characterBaseX + (mousePosition.x - 50) * parallaxSensitivityX}% ${characterBaseY + (mousePosition.y - 50) * parallaxSensitivityY}%` : `${characterBaseX}% ${characterBaseY}%`,
                 filter: 'drop-shadow(0 0 20px rgba(0, 0, 0, 0.3))'
               }}
             />
@@ -1017,10 +1020,9 @@ function HomeContent() {
         <div
           className="fixed"
           style={{
-            width: '100vw',
-            height: '100vh',
-            left: '0',
-            top: '0',
+            inset: 0,
+            width: '100%',
+            height: '100%',
             zIndex: 20,
             opacity: Math.abs(currentSection - 1) <= 1 ? 1 : 0,
             pointerEvents: currentSection === 1 ? 'auto' : 'none',
@@ -1114,10 +1116,9 @@ function HomeContent() {
         <div
           className="fixed"
           style={{
-            width: '100vw',
-            height: '100vh',
-            left: '0',
-            top: '0',
+            inset: 0,
+            width: '100%',
+            height: '100%',
             zIndex: 21,
             opacity: Math.abs(currentSection - 2) <= 1 ? 1 : 0,
             pointerEvents: currentSection === 2 ? 'auto' : 'none',
@@ -1126,7 +1127,7 @@ function HomeContent() {
         >
           <div className="projects-section">
             <div className="large-ghost" />
-            <div className="projects-ghost">CREATOR</div>
+            <div className="projects-ghost">ABOUT</div>
             <div className="projects-grid">
               <div className="projects-left">
                 <div className="projects-nav-wrapper">
@@ -1232,10 +1233,9 @@ function HomeContent() {
         <div
           className="fixed"
           style={{
-            width: '100vw',
-            height: '100vh',
-            left: '0',
-            top: '0',
+            inset: 0,
+            width: '100%',
+            height: '100%',
             zIndex: 22,
             background: 'transparent',
             opacity: Math.abs(currentSection - 3) <= 1 ? 1 : 0,
@@ -1244,7 +1244,7 @@ function HomeContent() {
           }}
         >
           <div className="experience-section">
-                        <div className="exp-grid">
+            <div className="exp-grid">
               <div className="exp-left">
                 <div className="exp-title-block">
                   <span className="exp-label">Artwork</span>
@@ -1328,10 +1328,9 @@ function HomeContent() {
         <div
           className="fixed"
           style={{
-            width: '100vw',
-            height: '100vh',
-            left: '0',
-            top: '0',
+            inset: 0,
+            width: '100%',
+            height: '100%',
             zIndex: 23,
             background: 'transparent',
             opacity: Math.abs(currentSection - 4) <= 1 ? 1 : 0,
@@ -1428,10 +1427,9 @@ function HomeContent() {
         <div
           className="fixed"
           style={{
-            width: '100vw',
-            height: '100vh',
-            left: '0',
-            top: '0',
+            inset: 0,
+            width: '100%',
+            height: '100%',
             zIndex: 30,
             pointerEvents: currentSection === 5 ? 'auto' : 'none',
             ...verticalSlideStyle()
@@ -1462,8 +1460,21 @@ function HomeContent() {
 
             {/* Main Content */}
             <div className="exp-detail-content">
-              {/* Left - Particles will show through here */}
-              <div className="exp-detail-particle-area" />
+              {/* Left - Artwork Image */}
+              <div className="exp-detail-image-area">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={selectedExperience}
+                    src={expEntries[selectedExperience]?.image}
+                    alt={expEntries[selectedExperience]?.title}
+                    className="exp-detail-artwork"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.4, ease: 'easeInOut' }}
+                  />
+                </AnimatePresence>
+              </div>
 
               {/* Right - Text */}
               <div className="exp-detail-text">
