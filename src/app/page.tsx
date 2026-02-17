@@ -517,7 +517,7 @@ function HomeContent() {
         'The red flag in the background anchors the composition and adds a focal point of color.',
         'Rendered entirely in pen with colored pencil accents for the grass and flag.'
       ],
-      image: '/golf.jpeg'
+      image: '/golf-drawing.jpeg'
     },
     {
       numeral: 'IV',
@@ -529,7 +529,7 @@ function HomeContent() {
         'Orange and red accents break the monochrome palette to depict flame and ember.',
         'Dense cross-hatching builds volume and weight across stone, wood, and fire.'
       ],
-      image: '/fireplace.jpeg'
+      image: '/fireplace-drawing.jpeg'
     },
     {
       numeral: 'V',
@@ -682,7 +682,7 @@ function HomeContent() {
       minWidth: '120px',
       height: '80%',
       offset: 0,
-      image: '/golf.jpeg'
+      image: '/golf-drawing.jpeg'
     },
     {
       id: 'stripe-4',
@@ -692,7 +692,7 @@ function HomeContent() {
       minWidth: '120px',
       height: '80%',
       offset: 0,
-      image: '/fireplace.jpeg'
+      image: '/fireplace-drawing.jpeg'
     },
     {
       id: 'stripe-5',
