@@ -33,6 +33,9 @@ function HomeContent() {
   const [expMagnet, setExpMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
   const [projectMagnet, setProjectMagnet] = useState<{ [key: number]: { x: number; y: number } }>({})
   const [submitMagnet, setSubmitMagnet] = useState({ x: 0, y: 0 })
+  const [detailReturnMagnet, setDetailReturnMagnet] = useState({ x: 0, y: 0 })
+  const [detailLeftMagnet, setDetailLeftMagnet] = useState({ x: 0, y: 0 })
+  const [detailRightMagnet, setDetailRightMagnet] = useState({ x: 0, y: 0 })
   const [selectedSocial, setSelectedSocial] = useState(0)
   const [socialHover, setSocialHover] = useState<number | null>(null)
   const [previousHorizontalSection, setPreviousHorizontalSection] = useState(3)
@@ -132,6 +135,13 @@ function HomeContent() {
 
   const handleSubmitMagnetLeave = () => {
     setSubmitMagnet({ x: 0, y: 0 })
+  }
+
+  const handleDetailMagnet = (e: React.MouseEvent<HTMLButtonElement>, setter: (v: { x: number; y: number }) => void) => {
+    const rect = e.currentTarget.getBoundingClientRect()
+    const x = (e.clientX - rect.left - rect.width / 2) * 0.25
+    const y = (e.clientY - rect.top - rect.height / 2) * 0.25
+    setter({ x, y })
   }
 
   const returnFromExperience = () => {
@@ -395,7 +405,7 @@ function HomeContent() {
         'follow the same rule. Every step',
         'is a decision. Every pause, a plan.'
       ],
-      image: '/about-reference.png'
+      image: '/game-concept.png'
     },
     {
       title: 'Combat Systems',
@@ -405,7 +415,7 @@ function HomeContent() {
         'pressure through drones, snipers,',
         'turrets, and armored mini-bosses.'
       ],
-      image: '/anime-style-mythical-dragon-creature.jpg'
+      image: '/game-combat.png'
     },
     {
       title: 'Campaign Stages',
@@ -415,7 +425,7 @@ function HomeContent() {
         'defuser deployment. Each room a',
         'lethal puzzle demanding efficiency.'
       ],
-      image: '/peakpx.jpg'
+      image: '/game-campaign.png'
     },
     {
       title: 'Tactical Tools',
@@ -425,7 +435,7 @@ function HomeContent() {
         'lanes. Plant defusers while waves',
         'of drones fight to stop the reset.'
       ],
-      image: '/anime-style-mythical-dragon-creature.png'
+      image: '/game-tactics.png'
     }
   ]
 
@@ -531,7 +541,7 @@ function HomeContent() {
         'Subject matter ranges from action-heavy scenes to quiet, introspective character moments.',
         'Illustration is where all the disciplines converge, storytelling through a single frame.'
       ],
-      image: '/anime-dragon-character-illustration.jpg'
+      image: '/illustration.png'
     }
   ]
 
@@ -692,7 +702,7 @@ function HomeContent() {
       minWidth: '120px',
       height: '80%',
       offset: 0,
-      image: '/anime-dragon-character-illustration.jpg'
+      image: '/illustration.png'
     }
   ]
 
@@ -827,26 +837,11 @@ function HomeContent() {
 
       {/* Simple right sidenav */}
       <nav
+        className="site-nav"
         style={{
-          position: 'fixed',
-          top: '50%',
-          right: '16px',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '8px',
-          padding: '10px 12px',
-          alignItems: 'flex-end',
-          fontSize: '12px',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '1px',
           color: navColor,
-          background: 'transparent',
-          zIndex: 1000000,
           pointerEvents: currentSection === 5 ? 'none' : 'auto',
           opacity: isTransitioning || currentSection === 5 ? 0 : 1,
-          transition: 'opacity 0.4s ease-in-out'
         }}
         ref={navRef}
         onMouseMove={handleNavMouseMove}
@@ -1304,20 +1299,10 @@ function HomeContent() {
         {/* Artwork watermark - above all layers */}
         <div
           ref={watermarkRef}
+          className="artwork-watermark"
           style={{
             display: stripHover !== null ? 'block' : 'none',
-            position: 'fixed',
-            bottom: '32px',
-            left: '50%',
-            transform: 'translate(-50%, 0)',
-            zIndex: 9999,
             color: watermarkBlend ? '#fff' : '#000',
-            fontSize: '120px',
-            fontWeight: 800,
-            letterSpacing: '4px',
-            textTransform: 'uppercase' as const,
-            pointerEvents: 'none' as const,
-            whiteSpace: 'nowrap' as const,
             ...(watermarkBlend ? { mixBlendMode: 'difference' as const } : {})
           }}
         >
@@ -1437,7 +1422,17 @@ function HomeContent() {
         >
           <div className="exp-detail-section">
             {/* Return Button */}
-            <button className="exp-detail-return" onClick={returnFromExperience}>
+            <button
+              className="exp-detail-return"
+              onClick={returnFromExperience}
+              onMouseMove={(e) => handleDetailMagnet(e, setDetailReturnMagnet)}
+              onMouseLeave={() => setDetailReturnMagnet({ x: 0, y: 0 })}
+              data-cursor-hover
+              style={{
+                transform: `translate(${detailReturnMagnet.x}px, ${detailReturnMagnet.y}px)`,
+                transition: 'transform 0.15s ease-out, color 0.3s ease'
+              }}
+            >
               <span className="exp-detail-return-arrow">‹</span>
               <span>Return</span>
             </button>
@@ -1446,6 +1441,13 @@ function HomeContent() {
             <button
               className="exp-detail-nav exp-detail-nav-left"
               onClick={() => handleExpChange('prev')}
+              onMouseMove={(e) => handleDetailMagnet(e, setDetailLeftMagnet)}
+              onMouseLeave={() => setDetailLeftMagnet({ x: 0, y: 0 })}
+              data-cursor-hover
+              style={{
+                transform: `translateY(-50%) translate(${detailLeftMagnet.x}px, ${detailLeftMagnet.y}px)`,
+                transition: 'transform 0.15s ease-out'
+              }}
             >
               <span className="exp-detail-nav-icon">‹</span>
             </button>
@@ -1454,6 +1456,13 @@ function HomeContent() {
             <button
               className="exp-detail-nav exp-detail-nav-right"
               onClick={() => handleExpChange('next')}
+              onMouseMove={(e) => handleDetailMagnet(e, setDetailRightMagnet)}
+              onMouseLeave={() => setDetailRightMagnet({ x: 0, y: 0 })}
+              data-cursor-hover
+              style={{
+                transform: `translateY(-50%) translate(${detailRightMagnet.x}px, ${detailRightMagnet.y}px)`,
+                transition: 'transform 0.15s ease-out'
+              }}
             >
               <span className="exp-detail-nav-icon">›</span>
             </button>
