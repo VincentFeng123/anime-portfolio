@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { MouseEvent as ReactMouseEvent } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import ParticleScene from './components/ParticleScene'
+import BulletTimeScene from './components/BulletTimeScene'
 import CustomCursor from './components/CustomCursor'
 
 function HomeContent() {
@@ -38,6 +39,7 @@ function HomeContent() {
   const [detailRightMagnet, setDetailRightMagnet] = useState({ x: 0, y: 0 })
   const [selectedSocial, setSelectedSocial] = useState(0)
   const [socialHover, setSocialHover] = useState<number | null>(null)
+  const [bulletTimeActive, setBulletTimeActive] = useState(false)
   const [previousHorizontalSection, setPreviousHorizontalSection] = useState(3)
   const currentSectionRef = useRef(0)
   const navRef = useRef<HTMLDivElement | null>(null)
@@ -188,8 +190,6 @@ function HomeContent() {
     ]
     let loadedCount = 0
     let imagesFullyLoaded = false
-    const MIN_LOAD_TIME = 2000 // Minimum 2 seconds for loader to show
-
     // Animate progress gradually - caps at 90% until images are actually loaded
     let currentProgress = 0
     const progressInterval = setInterval(() => {
@@ -201,6 +201,9 @@ function HomeContent() {
         setLoadProgress(currentProgress)
         if (currentProgress >= 100) {
           clearInterval(progressInterval)
+          if (!isCancelled) {
+            setHeroImagesReady(true)
+          }
         }
       } else {
         // Still loading - slowly progress up to 90%
@@ -217,13 +220,8 @@ function HomeContent() {
       loadedCount++
 
       if (loadedCount === heroImages.length) {
-        // Both images loaded - wait for minimum time then complete
+        // Both images loaded - mark loaded so progress bar finishes to 100%
         imagesFullyLoaded = true
-        setTimeout(() => {
-          if (!isCancelled) {
-            setHeroImagesReady(true)
-          }
-        }, MIN_LOAD_TIME)
       }
     }
 
@@ -731,6 +729,12 @@ function HomeContent() {
     // Reset hover state on section change to prevent jumpiness
     setHoverIdx(null)
     setHoverOffset({ x: 0, y: 0 })
+    // Trigger bullet time animation on Game section (section 1)
+    if (currentSection === 1) {
+      setBulletTimeActive(true)
+    } else {
+      setBulletTimeActive(false)
+    }
   }, [currentSection])
 
   const handleNavMouseMove = (e: ReactMouseEvent<HTMLDivElement>) => {
@@ -901,6 +905,9 @@ function HomeContent() {
 
       {/* 3D Particle Scene */}
       <ParticleScene currentSection={currentSection} selectedExperience={selectedExperience} selectedSocial={selectedSocial} />
+
+      {/* Bullet Time Animation - Game Section */}
+      <BulletTimeScene active={bulletTimeActive} onComplete={() => setBulletTimeActive(false)} />
 
       {/* Technical Blueprint Grid - visible on light sections only */}
       <div

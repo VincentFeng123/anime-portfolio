@@ -2053,6 +2053,22 @@ html {
   }
 }
 
+/* Bullet Time Overlay */
+.bullet-time-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 12;
+  pointer-events: none;
+  width: 100vw;
+  height: 100vh;
+}
+
+.bullet-time-overlay canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
 /* Hide custom cursor on touch devices */
 @media (pointer: coarse) {
   .custom-cursor-ring,
