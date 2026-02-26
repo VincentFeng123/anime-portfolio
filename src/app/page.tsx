@@ -220,7 +220,6 @@ function HomeContent() {
       loadedCount++
 
       if (loadedCount === heroImages.length) {
-        // Both images loaded - mark loaded so progress bar finishes to 100%
         imagesFullyLoaded = true
       }
     }
@@ -832,6 +831,29 @@ function HomeContent() {
                 <span className="loader-loading-text">Loading</span>
               </motion.div>
             </div>
+
+              {/* Refresh hint after long load */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 8, duration: 0.6 }}
+                style={{
+                  position: 'absolute',
+                  bottom: 32,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  fontSize: 12,
+                  letterSpacing: '0.5px',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  zIndex: 10,
+                  cursor: 'pointer',
+                  pointerEvents: 'auto',
+                }}
+                onClick={() => window.location.reload()}
+              >
+                Taking too long? Click to refresh.
+              </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
