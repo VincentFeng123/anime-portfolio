@@ -40,6 +40,7 @@ function HomeContent() {
   const [selectedSocial, setSelectedSocial] = useState(0)
   const [socialHover, setSocialHover] = useState<number | null>(null)
   const [bulletTimeActive, setBulletTimeActive] = useState(false)
+  const [bulletTimeAboutActive, setBulletTimeAboutActive] = useState(false)
   const [previousHorizontalSection, setPreviousHorizontalSection] = useState(3)
   const currentSectionRef = useRef(0)
   const navRef = useRef<HTMLDivElement | null>(null)
@@ -728,12 +729,9 @@ function HomeContent() {
     // Reset hover state on section change to prevent jumpiness
     setHoverIdx(null)
     setHoverOffset({ x: 0, y: 0 })
-    // Trigger bullet time animation on Game section (section 1)
-    if (currentSection === 1) {
-      setBulletTimeActive(true)
-    } else {
-      setBulletTimeActive(false)
-    }
+    // Trigger bullet time animations
+    setBulletTimeActive(currentSection === 1)
+    setBulletTimeAboutActive(currentSection === 2)
   }, [currentSection])
 
   const handleNavMouseMove = (e: ReactMouseEvent<HTMLDivElement>) => {
@@ -930,6 +928,8 @@ function HomeContent() {
 
       {/* Bullet Time Animation - Game Section */}
       <BulletTimeScene active={bulletTimeActive} onComplete={() => setBulletTimeActive(false)} />
+      {/* Bullet Time Animation - About Section */}
+      <BulletTimeScene active={bulletTimeAboutActive} onComplete={() => setBulletTimeAboutActive(false)} variant="vertical" />
 
       {/* Technical Blueprint Grid - visible on light sections only */}
       <div

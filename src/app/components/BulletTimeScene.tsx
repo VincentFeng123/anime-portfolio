@@ -6,6 +6,7 @@ import * as THREE from 'three'
 interface BulletTimeSceneProps {
   active: boolean
   onComplete: () => void
+  variant?: 'radial' | 'vertical'
 }
 
 const ANIM_DURATION = 1.35
@@ -15,24 +16,44 @@ const TRAIL_SPACING = 0.03
 const SPIN_SPEED = 1.5
 const FLY_OUT_DURATION = 0.6
 
-// Extreme ease-out: 93% of travel in first 20% of time, then crawls to stop
 function bulletEase(t: number): number {
   return 1 - Math.pow(1 - t, 12)
 }
 
-// Bullet profile revolved around Y axis: pointed tip, cylindrical body
 function createBulletGeometry(): THREE.LatheGeometry {
   const pts = [
-    new THREE.Vector2(0,    1.1),   // rounded tip
-    new THREE.Vector2(0.25, 1.0),   // ogive start
-    new THREE.Vector2(0.5,  0.8),   // ogive
-    new THREE.Vector2(0.7,  0.5),   // shoulder
-    new THREE.Vector2(0.8,  0.0),   // max width
-    new THREE.Vector2(0.8, -0.6),   // body
-    new THREE.Vector2(0.7, -0.75),  // base chamfer
-    new THREE.Vector2(0,   -0.75),  // base center
+    new THREE.Vector2(0,    1.1),
+    new THREE.Vector2(0.25, 1.0),
+    new THREE.Vector2(0.5,  0.8),
+    new THREE.Vector2(0.7,  0.5),
+    new THREE.Vector2(0.8,  0.0),
+    new THREE.Vector2(0.8, -0.6),
+    new THREE.Vector2(0.7, -0.75),
+    new THREE.Vector2(0,   -0.75),
   ]
   return new THREE.LatheGeometry(pts, 24)
+}
+
+function getTrajectories(variant: 'radial' | 'vertical', eX: number, eY: number) {
+  if (variant === 'vertical') {
+    // Shoot straight up from below the screen, stop at different heights
+    const bottomY = -eY - 1.5
+    return [
+      { sx: -eX * 0.75, sy: bottomY, sz: 7, ex: -eX * 0.75, ey: eY * 0.3,  ez: 7, delay: 0 },
+      { sx: eX * 0.55,  sy: bottomY, sz: 7, ex: eX * 0.55,  ey: eY * 0.7,  ez: 7, delay: 0.05 },
+      { sx: -eX * 0.2,  sy: bottomY, sz: 7, ex: -eX * 0.2,  ey: -eY * 0.5, ez: 7, delay: 0.1 },
+      { sx: eX * 0.8,  sy: bottomY, sz: 7, ex: eX * 0.8,  ey: -eY * 0.3,  ez: 7, delay: 0.03 },
+      { sx: -eX * 0.35, sy: bottomY, sz: 7, ex: -eX * 0.35, ey: eY * 0.85, ez: 7, delay: 0.08 },
+    ]
+  }
+  // Radial: shoot from center far behind to edges
+  return [
+    { sx: 0, sy: 0, sz: -60, ex: -eX,        ey: eY * 0.7,  ez: 7, delay: 0 },
+    { sx: 0, sy: 0, sz: -60, ex: eX,          ey: -eY * 0.5, ez: 7, delay: 0.06 },
+    { sx: 0, sy: 0, sz: -60, ex: eX * 0.6,    ey: eY,        ez: 7, delay: 0.04 },
+    { sx: 0, sy: 0, sz: -60, ex: -eX,         ey: -eY * 0.4, ez: 7, delay: 0.09 },
+    { sx: 0, sy: 0, sz: -60, ex: eX * 0.55,   ey: -eY * 0.8, ez: 7, delay: 0.1 },
+  ]
 }
 
 interface BulletData {
@@ -47,7 +68,7 @@ interface BulletData {
   spinAngle: number
 }
 
-export default function BulletTimeScene({ active, onComplete }: BulletTimeSceneProps) {
+export default function BulletTimeScene({ active, onComplete, variant = 'radial' }: BulletTimeSceneProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const delayRef = useRef<number | null>(null)
 
@@ -144,13 +165,7 @@ export default function BulletTimeScene({ active, onComplete }: BulletTimeSceneP
       const eX = halfW * 0.90
       const eY = halfH * 0.90
 
-      const trajectoryDefs = [
-        { sx: 0, sy: 0, sz: -60, ex: -eX,        ey: eY * 0.7,  ez: 7, delay: 0 },
-        { sx: 0, sy: 0, sz: -60, ex: eX,          ey: -eY * 0.5, ez: 7, delay: 0.06 },
-        { sx: 0, sy: 0, sz: -60, ex: eX * 0.6,    ey: eY,        ez: 7, delay: 0.04 },
-        { sx: 0, sy: 0, sz: -60, ex: -eX,         ey: -eY * 0.4, ez: 7, delay: 0.09 },
-        { sx: 0, sy: 0, sz: -60, ex: eX * 0.55,   ey: -eY * 0.8, ez: 7, delay: 0.1 },
-      ]
+      const trajectoryDefs = getTrajectories(variant, eX, eY)
 
       const bulletGeo = createBulletGeometry()
       const yUp = new THREE.Vector3(0, 1, 0)
@@ -171,7 +186,6 @@ export default function BulletTimeScene({ active, onComplete }: BulletTimeSceneP
         const end = new THREE.Vector3(def.ex, def.ey, def.ez)
         const dir = new THREE.Vector3().subVectors(end, start).normalize()
 
-        // Orient bullet so its tip (Y+) points along flight direction
         const baseQuat = new THREE.Quaternion().setFromUnitVectors(yUp, dir)
 
         const mesh = new THREE.Mesh(bulletGeo, makeBulletMat())
@@ -236,7 +250,6 @@ export default function BulletTimeScene({ active, onComplete }: BulletTimeSceneP
         const dt = (now - state.lastTimestamp) / 1000
         state.lastTimestamp = now
 
-        // Fly-out phase
         if (state.flyingOut) {
           const flyElapsed = (now - state.flyOutStart) / 1000
 
@@ -260,7 +273,6 @@ export default function BulletTimeScene({ active, onComplete }: BulletTimeSceneP
           return
         }
 
-        // Frozen spin phase
         if (state.frozen) {
           for (const b of bullets) {
             b.spinAngle += SPIN_SPEED * dt
@@ -271,7 +283,6 @@ export default function BulletTimeScene({ active, onComplete }: BulletTimeSceneP
           return
         }
 
-        // Shoot-in phase
         const elapsed = (now - state.startTime) / 1000
         const globalProgress = Math.min(elapsed / ANIM_DURATION, 1)
 
